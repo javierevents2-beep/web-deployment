@@ -53,6 +53,62 @@ const toLocalDate = (s?: string) => {
   return new Date(y, m - 1, d);
 };
 
+// Robust phone extraction for events/contacts. Some records store the phone in
+// different fields or nested structures (phone, clientPhone, formSnapshot.phone,
+// client.phone, etc). This helper normalizes common cases into a readable string.
+function normalizePhoneField(f: any): string {
+  if (!f && f !== 0) return '';
+  if (typeof f === 'string') return f;
+  if (typeof f === 'number') return String(f);
+  if (Array.isArray(f)) return f.map(i => normalizePhoneField(i)).filter(Boolean).join(' ');
+  if (typeof f === 'object') {
+    // common property names
+    const keys = ['phone', 'phoneNumber', 'value', 'number', 'tel', 'contactPhone'];
+    for (const k of keys) {
+      if (f[k]) return normalizePhoneField(f[k]);
+    }
+    try {
+      // Fallback: try to stringify and extract something
+      return String(f);
+    } catch (e) {
+      return '';
+    }
+  }
+  return '';
+}
+
+function extractPhoneFromEvent(ev: any): string {
+  if (!ev) return '';
+  const candidates = [
+    ev.phone,
+    ev.clientPhone,
+    ev.clientPhoneNumber,
+    (ev as any).client?.phone,
+    (ev as any).client?.phoneNumber,
+    (ev as any).formSnapshot?.phone,
+    (ev as any).formSnapshot?.contactPhone,
+    (ev as any).formSnapshot?.clientPhone,
+    (ev as any).phoneNumber,
+    (ev as any).contactPhone,
+    (ev as any).notes,
+    (ev as any).clientEmail,
+  ];
+
+  for (const c of candidates) {
+    const n = normalizePhoneField(c);
+    if (n && /\d/.test(n)) return n;
+  }
+
+  // As a last resort, scan the whole object for something that looks like a phone
+  try {
+    const s = JSON.stringify(ev);
+    const m = s.match(/[+]?\d[\d\s().-]{6,}\d/g);
+    if (m && m.length) return m[0];
+  } catch (e) {}
+
+  return '';
+}
+
 function getEventColor(c: ContractItem): string {
   if (c.status === 'cancelled') return 'bg-red-500 text-white hover:opacity-90';
   if (c.status === 'released') return 'bg-gray-200 text-gray-700 hover:opacity-90';
