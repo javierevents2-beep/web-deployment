@@ -454,12 +454,28 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
     return days;
   }, [filterYear, filterMonth]);
 
+  // Helper to determine whether an event is a calendar-only contact (should not
+  // be counted in the sidebar summary cards)
+  const isCalendarOnlyEvent = (e: ContractItem | null | undefined) => {
+    if (!e) return false;
+    const idStr = String(e.id || '');
+    const type = (e as any).type || '';
+    if (idStr.startsWith('cal_')) return true;
+    if (typeof type === 'string' && ['contact', 'Contacto'].includes(type)) return true;
+    // Some calendar-only events may have no contract fields like totalAmount or status
+    // but to be safe, treat events originating from calendar_events as calendar-only
+    if ((e as any).createdAt && String((e as any).createdAt).includes('calendar')) return true;
+    return false;
+  };
+
   const eventSummary = useMemo(() => {
-    const pending = filteredEvents.filter(e => e.depositPaid !== true).length;
-    const editing = filteredEvents.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted !== true).length;
-    const completed = filteredEvents.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true).length;
-    const allTotal = filteredEvents.length;
-    const totalRevenue = filteredEvents
+    // Exclude calendar-only events from the sidebar summary counts
+    const nonCalendar = filteredEvents.filter(e => !isCalendarOnlyEvent(e));
+    const pending = nonCalendar.filter(e => e.depositPaid !== true).length;
+    const editing = nonCalendar.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted !== true).length;
+    const completed = nonCalendar.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true).length;
+    const allTotal = nonCalendar.length;
+    const totalRevenue = nonCalendar
       .filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true)
       .reduce((sum, e) => sum + (Number(e.totalAmount || 0)), 0);
     return { pending, editing, completed, allTotal, totalRevenue };
