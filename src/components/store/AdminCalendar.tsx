@@ -1183,7 +1183,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                       event.eventTime ? `Hora: ${event.eventTime}` : '',
                       event.eventType ? `Tipo: ${event.eventType}` : '',
                       event.eventLocation ? `Ubicación: ${event.eventLocation}` : '',
-                      event.phone ? `Teléfono: ${event.phone}` : '',
+                      extractPhoneFromEvent(event) ? `Teléfono: ${extractPhoneFromEvent(event)}` : '',
                     ].filter(Boolean);
 
                     for (const detail of details) {
