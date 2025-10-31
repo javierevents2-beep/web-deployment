@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { X, Plus, Trash2, Upload, Check } from 'lucide-react';
 import { db } from '../../utils/firebaseClient';
 import { addDoc, collection, doc, updateDoc, getDocs, deleteDoc, query, where } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export interface ProductInput {
   id?: string;
@@ -51,7 +50,6 @@ const ProductEditorModal: React.FC<Props> = ({ open, onClose, product, onSaved }
   });
   const [tagsText, setTagsText] = useState('');
   const [saving, setSaving] = useState(false);
-  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const [categories, setCategories] = useState<string[]>([]);
   const [showNewCategory, setShowNewCategory] = useState(false);
@@ -122,23 +120,6 @@ const ProductEditorModal: React.FC<Props> = ({ open, onClose, product, onSaved }
     loadCategories();
   }, []);
 
-  const handleUpload = async (file: File) => {
-    try {
-      const storage = getStorage();
-      const key = `product_images/${Date.now()}-${file.name}`;
-      const storageRef = ref(storage, key);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      setForm(prev => ({ ...prev, image_url: url }));
-    } catch (e: any) {
-      console.error('Product image upload failed', e);
-      if (e && e.code === 'storage/unauthorized') {
-        window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'No tienes permiso para subir imágenes al Storage. Inicia sesión o verifica las reglas de Firebase.', type: 'error' } }));
-      } else {
-        window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Error al subir la imagen. Revisa la consola para más detalles.', type: 'error' } }));
-      }
-    }
-  };
 
   const addCategory = () => {
     const c = (newCategory || '').trim();
@@ -333,12 +314,8 @@ const ProductEditorModal: React.FC<Props> = ({ open, onClose, product, onSaved }
 
           <div>
             <label className="block text-sm text-gray-700 mb-1">Imagen del Producto</label>
-            <div className="border-2 border-dashed rounded-lg p-4 text-center text-gray-500 cursor-pointer" onClick={() => fileRef.current?.click()}>
-              <Upload size={18} className="inline mr-2" /> Haz clic para subir imagen (JPG, PNG, WebP)
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files && e.target.files[0] && handleUpload(e.target.files[0])} />
-            </div>
             {form.image_url && (
-              <div className="mt-3 relative">
+              <div className="mt-1 relative">
                 <img src={form.image_url} alt="preview" className="w-full h-48 object-cover rounded" />
                 <button className="absolute top-2 right-2 bg-white border-2 border-black text-black rounded-none p-1 hover:bg-black hover:text-white" onClick={() => setForm({ ...form, image_url: '' })}>
                   <X size={14} />
@@ -346,7 +323,7 @@ const ProductEditorModal: React.FC<Props> = ({ open, onClose, product, onSaved }
               </div>
             )}
             <input
-              placeholder="o pega la URL manualmente"
+              placeholder="Pega la URL de la imagen"
               value={form.image_url}
               onChange={e => setForm({ ...form, image_url: e.target.value })}
               className="mt-2 w-full px-3 py-2 border rounded"
