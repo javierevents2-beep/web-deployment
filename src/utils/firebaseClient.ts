@@ -18,7 +18,9 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 // Use the standard getFirestore initialization which is more compatible across
 // environments. Guard functions initialization to avoid throwing if environment
 // blocks network or the functions SDK cannot be initialized.
-export const db = getFirestore(app);
+// Initialize Firestore with long-polling enabled to improve compatibility
+// with restricted dev/proxy environments that block fetch streaming.
+export const db = initializeFirestore ? initializeFirestore(app, { experimentalForceLongPolling: true }) : getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 let _functions: ReturnType<typeof getFunctions> | null = null;
