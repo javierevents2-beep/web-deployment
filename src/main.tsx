@@ -8,6 +8,25 @@ import './index.css';
 // network errors (like 'Failed to fetch') flooding the console. We still
 // log a concise warning so developers can investigate if needed.
 if (typeof window !== 'undefined') {
+  // Wrap fetch to intercept network failures and log minimal warning.
+  try {
+    const _origFetch = window.fetch.bind(window);
+    window.fetch = async (...args: any[]) => {
+      try {
+        return await _origFetch(...args);
+      } catch (err: any) {
+        const msg = String(err?.message || err || '');
+        if (msg.includes('Failed to fetch')) {
+          // eslint-disable-next-line no-console
+          console.warn('Network request failed (fetch) — suppressed repetitive error.');
+        }
+        throw err;
+      }
+    };
+  } catch (e) {
+    // ignore if we cannot override fetch
+  }
+
   window.addEventListener('unhandledrejection', (ev) => {
     try {
       const reason = (ev && (ev as any).reason) || '';
