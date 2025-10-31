@@ -376,7 +376,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
 
       let phoneMatch = false;
       let nameMatch = false;
-      const phoneSource = ev.phone || (ev as any).formSnapshot?.phone || '';
+      const phoneSource = extractPhoneFromEvent(ev) || '';
       const onlyDigits = (v: string) => String(v || '').replace(/\D/g, '');
       phoneMatch = onlyDigits(phoneSource).includes(onlyDigits(filterPhone));
       const clientName = ev.clientName || '';
@@ -403,7 +403,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
       let phoneMatch = true;
       let nameMatch = true;
       if (filterPhone.trim()) {
-        const phoneSource = ev.phone || (ev as any).formSnapshot?.phone || '';
+        const phoneSource = extractPhoneFromEvent(ev) || '';
         const onlyDigits = (v: string) => String(v || '').replace(/\D/g, '');
         phoneMatch = onlyDigits(phoneSource).includes(onlyDigits(filterPhone));
         const clientName = ev.clientName || '';
