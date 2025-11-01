@@ -93,7 +93,7 @@ const ServiceSelectionPage: React.FC = () => {
             <ChevronLeft />
           </button>
 
-          <div ref={trackRef} className="relative flex items-center justify-center overflow-hidden h-screen">
+          <div ref={trackRef} className="relative flex items-center justify-center overflow-hidden h-screen pt-[2px]">
             <div className="relative w-full flex items-center justify-center">
               {services.map((s, i) => {
                 // circular offset calculation
