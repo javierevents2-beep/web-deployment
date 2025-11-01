@@ -109,6 +109,50 @@ function extractPhoneFromEvent(ev: any): string {
   return '';
 }
 
+// Prepare a phone string for use with wa.me links: remove non-digits and ensure
+// it uses an international country code. Default to Brazil (+55) when it looks
+// like a local number (10-11 digits without country code).
+function formatPhoneForWhatsApp(raw: string): string {
+  if (!raw) return '';
+  let cleaned = String(raw || '').replace(/[^\d+]/g, '');
+  // If starts with +, remove it for wa.me
+  if (cleaned.startsWith('+')) cleaned = cleaned.slice(1);
+  // Remove any leading zeros
+  cleaned = cleaned.replace(/^0+/, '');
+  // If already has country code (assume starts with 1-3 digits country code when length > 11)
+  if (cleaned.length > 11) return cleaned;
+  // If it seems local (10 or 11 digits) and doesn't already start with country code 55, prefix 55
+  if ((cleaned.length === 10 || cleaned.length === 11) && !cleaned.startsWith('55')) {
+    return '55' + cleaned;
+  }
+  return cleaned;
+}
+
+function buildWhatsAppUrl(ev: ContractItem, expandedDayStr?: string): { url: string; phone: string } | null {
+  const rawPhone = extractPhoneFromEvent(ev);
+  const phoneForWA = formatPhoneForWhatsApp(rawPhone);
+  if (!phoneForWA) return null;
+  const dateSource = ev.eventDate || expandedDayStr || '';
+  let dateLabel = '';
+  try {
+    const d = dateSource ? new Date(dateSource) : null;
+    if (d && !isNaN(d.getTime())) {
+      dateLabel = d.toLocaleDateString('pt-BR');
+    } else {
+      dateLabel = String(dateSource);
+    }
+  } catch (e) {
+    dateLabel = String(dateSource);
+  }
+  const timeLabel = ev.eventTime || '';
+  const locationLabel = ev.eventLocation || '';
+
+  const message = `Olá 😊 tudo bem? Aqui é o Javier da Wild Pictures Studio. Passando só pra confirmar o evento de amanhã 📸✨  \n\n📅 Data: ${dateLabel}\n🕒 Horário: ${timeLabel}\n📍 Local: ${locationLabel}\n\nTudo certo por aí? Qualquer ajuste ou dúvida, é só me avisar 👍`;
+
+  const url = `https://wa.me/${phoneForWA}?text=${encodeURIComponent(message)}`;
+  return { url, phone: phoneForWA };
+}
+
 function getEventColor(c: ContractItem): string {
   if (c.status === 'cancelled') return 'bg-red-500 text-white hover:opacity-90';
   if (c.status === 'released') return 'bg-gray-200 text-gray-700 hover:opacity-90';
