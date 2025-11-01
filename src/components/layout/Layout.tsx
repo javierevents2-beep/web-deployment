@@ -78,15 +78,28 @@ const Layout = ({ children }: LayoutProps) => {
     return () => { if (obs) obs.disconnect(); };
   }, []);
 
-  // Ensure body background matches admin pages to avoid white stripe at bottom
+  // Ensure body background matches admin pages (white in light mode, dark when admin-dark is active)
   useEffect(() => {
     const prev = document.body.style.backgroundColor;
+    let obs: MutationObserver | null = null;
+
+    const applyAdminBg = () => {
+      const isAdminDark = !!document.querySelector('.admin-dark');
+      document.body.style.backgroundColor = isAdminDark ? '#0b0b0b' : '#ffffff';
+    };
+
     if (isAdmin) {
-      document.body.style.backgroundColor = '#000000';
+      applyAdminBg();
+      obs = new MutationObserver(() => applyAdminBg());
+      obs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
     } else {
       document.body.style.backgroundColor = prev;
     }
-    return () => { document.body.style.backgroundColor = prev; };
+
+    return () => {
+      if (obs) obs.disconnect();
+      document.body.style.backgroundColor = prev;
+    };
   }, [isAdmin]);
 
   if (!mounted) {
