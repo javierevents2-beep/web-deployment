@@ -147,7 +147,7 @@ function buildWhatsAppUrl(ev: ContractItem, expandedDayStr?: string): { url: str
   const timeLabel = ev.eventTime || '';
   const locationLabel = ev.eventLocation || '';
 
-  let message = `Olá 😊 tudo bem? Aqui é o Javier da Wild Pictures Studio. Passando só pra confirmar o evento de amanhã 📸✨\n\n📅 Data: ${dateLabel}\n🕒 Horário: ${timeLabel}\n📍 Local: ${locationLabel}\n\nTudo certo por aí? Qualquer ajuste ou dúvida, é só me avisar 👍`;
+  let message = `Olá, tudo bem? Aqui é o Javier da Wild Pictures Studio. Passando só pra confirmar o evento de amanhã.\n\nData: ${dateLabel}\nHorário: ${timeLabel}\nLocal: ${locationLabel}\n\nTudo certo por aí? Qualquer ajuste ou dúvida, é só me avisar.`;
   // Normalize to NFC to avoid rare unicode decomposition issues
   try { if ((message as any).normalize) message = (message as any).normalize('NFC'); } catch (e) {}
   // Strip problematic invisible characters that may break decoding
