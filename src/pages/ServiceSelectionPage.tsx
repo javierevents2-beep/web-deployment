@@ -103,12 +103,18 @@ const ServiceSelectionPage: React.FC = () => {
                 const offset = raw; // -1,0,1 etc
 
                 // layout calculations
-                const distance = 420; // px between centers
-                const x = offset * distance;
-                const scale = offset === 0 ? 1.15 : Math.max(0.9, 1 - Math.abs(offset) * 0.12);
-                const z = 100 - Math.abs(offset);
-                const opacity = offset === 0 ? 1 : Math.max(0.35, 1 - Math.abs(offset) * 0.35);
-                const shadow = offset === 0 ? 30 : Math.max(6, 20 - Math.abs(offset) * 10);
+                const containerWidth = trackRef.current?.clientWidth ?? 1200;
+                const distance = Math.min(420, containerWidth * 0.45); // responsive spacing
+                const maxVisible = 2; // keep cards within screen
+                let clampedOffset = offset;
+                if (Math.abs(clampedOffset) > maxVisible) {
+                  clampedOffset = Math.sign(clampedOffset) * maxVisible;
+                }
+                const x = clampedOffset * distance;
+                const scale = clampedOffset === 0 ? 1.15 : Math.max(0.75, 1 - Math.abs(clampedOffset) * 0.12);
+                const z = 100 - Math.abs(clampedOffset);
+                const opacity = clampedOffset === 0 ? 1 : Math.max(0.25, 1 - Math.abs(clampedOffset) * 0.35);
+                const shadow = clampedOffset === 0 ? 30 : Math.max(4, 20 - Math.abs(clampedOffset) * 10);
 
                 const Icon = s.icon;
 
