@@ -147,10 +147,19 @@ function buildWhatsAppUrl(ev: ContractItem, expandedDayStr?: string): { url: str
   const timeLabel = ev.eventTime || '';
   const locationLabel = ev.eventLocation || '';
 
-  const message = `Olá 😊 tudo bem? Aqui é o Javier da Wild Pictures Studio. Passando só pra confirmar o evento de amanhã 📸✨  \n\n📅 Data: ${dateLabel}\n🕒 Horário: ${timeLabel}\n📍 Local: ${locationLabel}\n\nTudo certo por aí? Qualquer ajuste ou dúvida, é só me avisar 👍`;
+  let message = `Olá 😊 tudo bem? Aqui é o Javier da Wild Pictures Studio. Passando só pra confirmar o evento de amanhã 📸✨\n\n📅 Data: ${dateLabel}\n🕒 Horário: ${timeLabel}\n📍 Local: ${locationLabel}\n\nTudo certo por aí? Qualquer ajuste ou dúvida, é só me avisar 👍`;
+  // Normalize to NFC to avoid rare unicode decomposition issues
+  try { if ((message as any).normalize) message = (message as any).normalize('NFC'); } catch (e) {}
 
-  const url = `https://wa.me/${phoneForWA}?text=${encodeURIComponent(message)}`;
-  return { url, phone: phoneForWA };
+  // Use URL and URLSearchParams to ensure proper UTF-8 percent-encoding
+  try {
+    const urlObj = new URL(`https://wa.me/${phoneForWA}`);
+    urlObj.searchParams.set('text', message);
+    return { url: urlObj.toString(), phone: phoneForWA };
+  } catch (e) {
+    const url = `https://wa.me/${phoneForWA}?text=${encodeURIComponent(message)}`;
+    return { url, phone: phoneForWA };
+  }
 }
 
 function getEventColor(c: ContractItem): string {
