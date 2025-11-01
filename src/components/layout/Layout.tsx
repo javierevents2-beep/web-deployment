@@ -58,37 +58,53 @@ const Layout = ({ children }: LayoutProps) => {
 
   // Admin image overlay: disable when site_admin_mode is set
   useEffect(() => {
-    const handler = (e: any) => {
-      const val = e?.detail ?? (sessionStorage.getItem('site_admin_mode') ? true : false);
-      if (val) {
-        ImageAdminOverlay.destroyImageAdminOverlay();
-      } else {
-        ImageAdminOverlay.initImageAdminOverlay();
-      }
-    };
-    window.addEventListener('siteAdminModeChanged', handler as EventListener);
-    // run once based on current value
-    if (typeof window !== 'undefined' && sessionStorage.getItem('site_admin_mode')) {
-      ImageAdminOverlay.destroyImageAdminOverlay();
+    try {
+      const handler = (e: any) => {
+        try {
+          const val = e?.detail ?? (sessionStorage.getItem('site_admin_mode') ? true : false);
+          if (val) {
+            ImageAdminOverlay.destroyImageAdminOverlay();
+          } else {
+            ImageAdminOverlay.initImageAdminOverlay();
+          }
+        } catch (inner) {
+          // ignore overlay errors
+        }
+      };
+      window.addEventListener('siteAdminModeChanged', handler as EventListener);
+      // run once based on current value
+      try {
+        if (typeof window !== 'undefined' && sessionStorage.getItem('site_admin_mode')) {
+          ImageAdminOverlay.destroyImageAdminOverlay();
+        }
+      } catch (inner) {}
+      return () => {
+        try { window.removeEventListener('siteAdminModeChanged', handler as EventListener); } catch (e) {}
+        try { ImageAdminOverlay.initImageAdminOverlay(); } catch (e) {}
+      };
+    } catch (err) {
+      // swallow
     }
-    return () => {
-      window.removeEventListener('siteAdminModeChanged', handler as EventListener);
-      ImageAdminOverlay.initImageAdminOverlay();
-    };
   }, []);
 
   // Apply persisted image overrides for public site
   useEffect(() => {
     let obs: MutationObserver | null = null;
     const loadAndApply = async () => {
-      const map = await fetchImageOverrides();
-      applyImageOverrides(map);
-      if (obs) obs.disconnect();
-      obs = new MutationObserver(() => applyImageOverrides(map));
-      obs.observe(document.body, { childList: true, subtree: true });
+      try {
+        const map = await fetchImageOverrides();
+        try { applyImageOverrides(map); } catch (e) {}
+        if (obs) try { obs.disconnect(); } catch (e) {}
+        obs = new MutationObserver(() => {
+          try { applyImageOverrides(map); } catch (e) {}
+        });
+        try { obs.observe(document.body, { childList: true, subtree: true }); } catch (e) {}
+      } catch (err) {
+        // ignore fetch/apply errors
+      }
     };
     loadAndApply();
-    return () => { if (obs) obs.disconnect(); };
+    return () => { try { if (obs) obs.disconnect(); } catch (e) {} };
   }, []);
 
   // Ensure body background matches admin pages (white in light mode, dark when admin-dark is active)
