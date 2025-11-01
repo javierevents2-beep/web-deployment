@@ -109,26 +109,34 @@ const Layout = ({ children }: LayoutProps) => {
 
   // Ensure body background matches admin pages (white in light mode, dark when admin-dark is active)
   useEffect(() => {
-    const prev = document.body.style.backgroundColor;
-    let obs: MutationObserver | null = null;
+    try {
+      const prev = document.body.style.backgroundColor;
+      let obs: MutationObserver | null = null;
 
-    const applyAdminBg = () => {
-      const isAdminDark = !!document.querySelector('.admin-dark');
-      document.body.style.backgroundColor = isAdminDark ? '#0b0b0b' : '#ffffff';
-    };
+      const applyAdminBg = () => {
+        try {
+          const isAdminDark = !!document.querySelector('.admin-dark');
+          document.body.style.backgroundColor = isAdminDark ? '#0b0b0b' : '#ffffff';
+        } catch (e) {}
+      };
 
-    if (isAdmin) {
-      applyAdminBg();
-      obs = new MutationObserver(() => applyAdminBg());
-      obs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
-    } else {
-      document.body.style.backgroundColor = prev;
+      if (isAdmin) {
+        applyAdminBg();
+        try {
+          obs = new MutationObserver(() => applyAdminBg());
+          obs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+        } catch (e) {}
+      } else {
+        document.body.style.backgroundColor = prev;
+      }
+
+      return () => {
+        try { if (obs) obs.disconnect(); } catch (e) {}
+        try { document.body.style.backgroundColor = prev; } catch (e) {}
+      };
+    } catch (err) {
+      // swallow
     }
-
-    return () => {
-      if (obs) obs.disconnect();
-      document.body.style.backgroundColor = prev;
-    };
   }, [isAdmin]);
 
   if (!mounted) {
