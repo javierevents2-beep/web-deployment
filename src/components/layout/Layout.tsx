@@ -17,30 +17,43 @@ const Layout = ({ children }: LayoutProps) => {
   const isAdmin = location.pathname.startsWith('/admin');
 
   useEffect(() => {
-    setTimeout(() => {
-      setMounted(true);
-    }, 1000);
+    try {
+      setTimeout(() => {
+        setMounted(true);
+      }, 1000);
 
-    // Add intersection observer for fade-in animations
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('appear');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
+      // Add intersection observer for fade-in animations
+      try {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            try {
+              if (entry.isIntersecting) {
+                (entry.target as HTMLElement).classList.add('appear');
+                observer.unobserve(entry.target);
+              }
+            } catch (e) {
+              // ignore per-element errors
+            }
+          });
+        }, { threshold: 0.1 });
 
-    const fadeElements = document.querySelectorAll('.fade-in');
-    fadeElements.forEach(element => {
-      observer.observe(element);
-    });
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+          try { observer.observe(element); } catch (e) {}
+        });
 
-    return () => {
-      fadeElements.forEach(element => {
-        observer.unobserve(element);
-      });
-    };
+        return () => {
+          fadeElements.forEach(element => {
+            try { observer.unobserve(element); } catch (e) {}
+          });
+        };
+      } catch (err) {
+        // IntersectionObserver not available or failed
+        return;
+      }
+    } catch (err) {
+      // swallow any unexpected error in mount effect
+    }
   }, []);
 
   // Admin image overlay: disable when site_admin_mode is set
