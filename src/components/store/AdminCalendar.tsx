@@ -53,6 +53,114 @@ const toLocalDate = (s?: string) => {
   return new Date(y, m - 1, d);
 };
 
+// Robust phone extraction for events/contacts. Some records store the phone in
+// different fields or nested structures (phone, clientPhone, formSnapshot.phone,
+// client.phone, etc). This helper normalizes common cases into a readable string.
+function normalizePhoneField(f: any): string {
+  if (!f && f !== 0) return '';
+  if (typeof f === 'string') return f;
+  if (typeof f === 'number') return String(f);
+  if (Array.isArray(f)) return f.map(i => normalizePhoneField(i)).filter(Boolean).join(' ');
+  if (typeof f === 'object') {
+    // common property names
+    const keys = ['phone', 'phoneNumber', 'value', 'number', 'tel', 'contactPhone'];
+    for (const k of keys) {
+      if (f[k]) return normalizePhoneField(f[k]);
+    }
+    try {
+      // Fallback: try to stringify and extract something
+      return String(f);
+    } catch (e) {
+      return '';
+    }
+  }
+  return '';
+}
+
+function extractPhoneFromEvent(ev: any): string {
+  if (!ev) return '';
+  const candidates = [
+    ev.phone,
+    ev.clientPhone,
+    ev.clientPhoneNumber,
+    (ev as any).client?.phone,
+    (ev as any).client?.phoneNumber,
+    (ev as any).formSnapshot?.phone,
+    (ev as any).formSnapshot?.contactPhone,
+    (ev as any).formSnapshot?.clientPhone,
+    (ev as any).phoneNumber,
+    (ev as any).contactPhone,
+    (ev as any).notes,
+    (ev as any).clientEmail,
+  ];
+
+  for (const c of candidates) {
+    const n = normalizePhoneField(c);
+    if (n && /\d/.test(n)) return n;
+  }
+
+  // As a last resort, scan the whole object for something that looks like a phone
+  try {
+    const s = JSON.stringify(ev);
+    const m = s.match(/[+]?\d[\d\s().-]{6,}\d/g);
+    if (m && m.length) return m[0];
+  } catch (e) {}
+
+  return '';
+}
+
+// Prepare a phone string for use with wa.me links: remove non-digits and ensure
+// it uses an international country code. Default to Brazil (+55) when it looks
+// like a local number (10-11 digits without country code).
+function formatPhoneForWhatsApp(raw: string): string {
+  if (!raw) return '';
+  let cleaned = String(raw || '').replace(/[^\d+]/g, '');
+  // If starts with +, remove it for wa.me
+  if (cleaned.startsWith('+')) cleaned = cleaned.slice(1);
+  // Remove any leading zeros
+  cleaned = cleaned.replace(/^0+/, '');
+  // If already has country code (assume starts with 1-3 digits country code when length > 11)
+  if (cleaned.length > 11) return cleaned;
+  // If it seems local (10 or 11 digits) and doesn't already start with country code 55, prefix 55
+  if ((cleaned.length === 10 || cleaned.length === 11) && !cleaned.startsWith('55')) {
+    return '55' + cleaned;
+  }
+  return cleaned;
+}
+
+function buildWhatsAppUrl(ev: ContractItem, expandedDayStr?: string): { url: string; phone: string } | null {
+  const rawPhone = extractPhoneFromEvent(ev);
+  const phoneForWA = formatPhoneForWhatsApp(rawPhone);
+  if (!phoneForWA) return null;
+  const dateSource = ev.eventDate || expandedDayStr || '';
+  let dateLabel = '';
+  try {
+    const d = dateSource ? new Date(dateSource) : null;
+    if (d && !isNaN(d.getTime())) {
+      dateLabel = d.toLocaleDateString('pt-BR');
+    } else {
+      dateLabel = String(dateSource);
+    }
+  } catch (e) {
+    dateLabel = String(dateSource);
+  }
+  const timeLabel = ev.eventTime || '';
+  const locationLabel = ev.eventLocation || '';
+
+  let message = `Olá, tudo bem? Aqui é o Javier da Wild Pictures Studio. Passando só pra confirmar o evento de amanhã.\n\nData: ${dateLabel}\nHorário: ${timeLabel}\nLocal: ${locationLabel}\n\nTudo certo por aí? Qualquer ajuste ou dúvida, é só me avisar.`;
+  // Normalize to NFC to avoid rare unicode decomposition issues
+  try { if ((message as any).normalize) message = (message as any).normalize('NFC'); } catch (e) {}
+  // Strip problematic invisible characters that may break decoding
+  message = message.replace(/\uFFFD/g, '');
+  message = message.replace(/\uFEFF/g, '');
+  message = message.replace(/\u00A0/g, ' ');
+
+  // Build the WhatsApp link using API endpoint and explicit percent-encoding
+  const encoded = encodeURIComponent(message);
+  const url = `https://api.whatsapp.com/send?phone=${phoneForWA}&text=${encoded}`;
+  return { url, phone: phoneForWA };
+}
+
 function getEventColor(c: ContractItem): string {
   if (c.status === 'cancelled') return 'bg-red-500 text-white hover:opacity-90';
   if (c.status === 'released') return 'bg-gray-200 text-gray-700 hover:opacity-90';
@@ -320,7 +428,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
 
       let phoneMatch = false;
       let nameMatch = false;
-      const phoneSource = ev.phone || (ev as any).formSnapshot?.phone || '';
+      const phoneSource = extractPhoneFromEvent(ev) || '';
       const onlyDigits = (v: string) => String(v || '').replace(/\D/g, '');
       phoneMatch = onlyDigits(phoneSource).includes(onlyDigits(filterPhone));
       const clientName = ev.clientName || '';
@@ -347,7 +455,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
       let phoneMatch = true;
       let nameMatch = true;
       if (filterPhone.trim()) {
-        const phoneSource = ev.phone || (ev as any).formSnapshot?.phone || '';
+        const phoneSource = extractPhoneFromEvent(ev) || '';
         const onlyDigits = (v: string) => String(v || '').replace(/\D/g, '');
         phoneMatch = onlyDigits(phoneSource).includes(onlyDigits(filterPhone));
         const clientName = ev.clientName || '';
@@ -398,12 +506,28 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
     return days;
   }, [filterYear, filterMonth]);
 
+  // Helper to determine whether an event is a calendar-only contact (should not
+  // be counted in the sidebar summary cards)
+  const isCalendarOnlyEvent = (e: ContractItem | null | undefined) => {
+    if (!e) return false;
+    const idStr = String(e.id || '');
+    const type = (e as any).type || '';
+    if (idStr.startsWith('cal_')) return true;
+    if (typeof type === 'string' && ['contact', 'Contacto'].includes(type)) return true;
+    // Some calendar-only events may have no contract fields like totalAmount or status
+    // but to be safe, treat events originating from calendar_events as calendar-only
+    if ((e as any).createdAt && String((e as any).createdAt).includes('calendar')) return true;
+    return false;
+  };
+
   const eventSummary = useMemo(() => {
-    const pending = filteredEvents.filter(e => e.depositPaid !== true).length;
-    const editing = filteredEvents.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted !== true).length;
-    const completed = filteredEvents.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true).length;
-    const allTotal = filteredEvents.length;
-    const totalRevenue = filteredEvents
+    // Exclude calendar-only events from the sidebar summary counts
+    const nonCalendar = filteredEvents.filter(e => !isCalendarOnlyEvent(e));
+    const pending = nonCalendar.filter(e => e.depositPaid !== true).length;
+    const editing = nonCalendar.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted !== true).length;
+    const completed = nonCalendar.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true).length;
+    const allTotal = nonCalendar.length;
+    const totalRevenue = nonCalendar
       .filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true)
       .reduce((sum, e) => sum + (Number(e.totalAmount || 0)), 0);
     return { pending, editing, completed, allTotal, totalRevenue };
@@ -813,7 +937,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
 
   const isSelectedCalendarContact = selectedEvent && (String(selectedEvent.id || '').startsWith('cal_') || (selectedEvent as any).type === 'contact' || (selectedEvent as any).type === 'Contacto');
   const selectedEmail = selectedEvent ? (selectedEvent.clientEmail || (selectedEvent as any).email || '') : '';
-  const selectedPhone = selectedEvent ? (selectedEvent.phone || (selectedEvent as any).clientPhone || (selectedEvent as any).phone || '') : '';
+  const selectedPhone = selectedEvent ? extractPhoneFromEvent(selectedEvent) : '';
   const selectedPackageTitle = selectedEvent ? ((selectedEvent as any).packageTitle || (selectedEvent as any).packageTitle || '') : '';
   const selectedNotes = selectedEvent ? ((selectedEvent as any).notes || '') : '';
 
@@ -1043,9 +1167,9 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                       <div className={`text-sm mt-1 transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {ev.eventLocation || ''}
                       </div>
-                      {ev.phone && (
+                      {(extractPhoneFromEvent(ev)) && (
                         <div className={`text-sm mt-1 transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          Tel: {ev.phone || (ev as any).clientPhone || (ev as any).formSnapshot?.phone}
+                          Tel: {extractPhoneFromEvent(ev)}
                         </div>
                       )}
 
@@ -1063,13 +1187,33 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                       )}
                     </button>
                   </div>
-                  <button
-                    onClick={() => window.dispatchEvent(new CustomEvent('adminOpenContract', { detail: { id: String(ev.id).split('__')[0] } }))}
-                    className="w-full md:w-auto px-3 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <ExternalLink size={14} />
-                    Ir al contrato
-                  </button>
+                  <div className="flex gap-2">
+                    {(() => {
+                      const wa = buildWhatsAppUrl(ev, expandedDay || undefined);
+                      if (wa) {
+                        return (
+                          <a href={wa.url} target="_blank" rel="noopener noreferrer" className="px-3 py-2 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                            <Phone size={14} />
+                            Confirmar via WhatsApp
+                          </a>
+                        );
+                      }
+                      return (
+                        <button disabled className="px-3 py-2 bg-gray-200 text-gray-600 rounded text-sm font-medium flex items-center justify-center gap-2" title="No hay teléfono">
+                          <Phone size={14} />
+                          WhatsApp
+                        </button>
+                      );
+                    })()}
+
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('adminOpenContract', { detail: { id: String(ev.id).split('__')[0] } }))}
+                      className="w-full md:w-auto px-3 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ExternalLink size={14} />
+                      Ir al contrato
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -1127,7 +1271,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                       event.eventTime ? `Hora: ${event.eventTime}` : '',
                       event.eventType ? `Tipo: ${event.eventType}` : '',
                       event.eventLocation ? `Ubicación: ${event.eventLocation}` : '',
-                      event.phone ? `Teléfono: ${event.phone}` : '',
+                      extractPhoneFromEvent(event) ? `Teléfono: ${extractPhoneFromEvent(event)}` : '',
                     ].filter(Boolean);
 
                     for (const detail of details) {

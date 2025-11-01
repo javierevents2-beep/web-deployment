@@ -15,10 +15,24 @@ const firebaseConfig = {
 // ✅ Inicializar Firebase de forma segura
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-export const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+// Use the standard getFirestore initialization which is more compatible across
+// environments. Guard functions initialization to avoid throwing if environment
+// blocks network or the functions SDK cannot be initialized.
+// Initialize Firestore with long-polling enabled to improve compatibility
+// with restricted dev/proxy environments that block fetch streaming.
+export const db = initializeFirestore ? initializeFirestore(app, { experimentalForceLongPolling: true }) : getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-export const functions = getFunctions(app, 'us-central1');
+let _functions: ReturnType<typeof getFunctions> | null = null;
+try {
+  _functions = getFunctions(app, 'us-central1');
+} catch (e) {
+  // In some environments initialization may fail (network restrictions, CSP).
+  // Fail gracefully and let callers handle missing functions reference.
+  // eslint-disable-next-line no-console
+  console.warn('Warning: Firebase Functions could not be initialized:', e);
+}
+export const functions = _functions as any;
 export const firebaseProjectId = firebaseConfig.projectId;
 
 export default app;
