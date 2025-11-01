@@ -132,10 +132,10 @@ const ServiceSelectionPage: React.FC = () => {
                     style={{ zIndex: z }}
                     className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
                   >
-                    <div style={{ width: cardWidth }} className={`rounded-2xl p-8 mx-3 ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
+                    <div style={{ width: cardWidth }} className={`rounded-2xl p-8 mx-3 flex items-center justify-center ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
                       <div style={{
                         boxShadow: `0 ${Math.round(12 * (1 - Math.abs(offset)))}px ${Math.max(20, shadow)}px rgba(200,200,200,${0.06 + (0.15 * (1 - Math.abs(offset)))})`
-                      }} className="h-full rounded-2xl flex flex-col items-center text-center px-4 py-6">
+                      }} className="max-h-[80vh] rounded-2xl flex flex-col items-center text-center px-4 py-6">
                         <div className="p-4 rounded-full mb-4 bg-white/10" style={{ width: 88, height: 88 }}>
                           <Icon size={36} className="mx-auto" />
                         </div>
