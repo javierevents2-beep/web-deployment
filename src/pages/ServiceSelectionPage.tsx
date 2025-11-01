@@ -83,17 +83,17 @@ const ServiceSelectionPage: React.FC = () => {
   const len = services.length;
 
   return (
-    <div className="min-h-screen w-full bg-black text-white flex items-center justify-center p-6">
-      <div className="max-w-6xl w-full">
-        <h1 className="text-4xl md:text-5xl font-playfair text-center mb-6">Nossos Serviços</h1>
-        <p className="text-center text-gray-300 mb-8">Oferecemos uma variedade de serviços fotográficos profissionais para capturar seus momentos mais especiais com qualidade e sensibilidade.</p>
+    <div className="w-full bg-black text-white">
+      <div className="max-w-6xl w-full h-screen flex flex-col justify-center mx-auto px-4 md:px-8">
+        <h1 className="text-4xl md:text-5xl font-playfair text-center mb-4">Nossos Serviços</h1>
+        <p className="text-center text-gray-300 mb-6">Oferecemos uma variedade de serviços fotográficos profissionais para capturar seus momentos mais especiais com qualidade e sensibilidade.</p>
 
-        <div className="relative">
-          <button aria-label="Previous" onClick={goPrev} className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors">
+        <div className="relative flex-1">
+          <button aria-label="Previous" onClick={goPrev} className="hidden md:flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors">
             <ChevronLeft />
           </button>
 
-          <div ref={trackRef} className="relative flex items-center justify-center overflow-hidden h-[320px] md:h-[420px]">
+          <div ref={trackRef} className="relative flex items-center justify-center overflow-hidden h-screen">
             <div className="relative w-full flex items-center justify-center">
               {services.map((s, i) => {
                 // circular offset calculation
@@ -132,7 +132,7 @@ const ServiceSelectionPage: React.FC = () => {
                     style={{ zIndex: z }}
                     className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
                   >
-                    <div style={{ width: 360 }} className={`rounded-2xl p-8 mx-3 ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
+                    <div style={{ width: cardWidth }} className={`rounded-2xl p-8 mx-3 ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
                       <div style={{
                         boxShadow: `0 ${Math.round(12 * (1 - Math.abs(offset)))}px ${Math.max(20, shadow)}px rgba(200,200,200,${0.06 + (0.15 * (1 - Math.abs(offset)))})`
                       }} className="h-full rounded-2xl flex flex-col items-center text-center px-4 py-6">
@@ -155,7 +155,7 @@ const ServiceSelectionPage: React.FC = () => {
             </div>
           </div>
 
-          <button aria-label="Next" onClick={goNext} className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors">
+          <button aria-label="Next" onClick={goNext} className="hidden md:flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors">
             <ChevronRight />
           </button>
 
