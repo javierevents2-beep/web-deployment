@@ -171,7 +171,7 @@ const Header = () => {
       { name: 'Serviços', path: '/services', key: 'services' },
       { name: t('nav.portfolio'), path: '/portfolio', key: 'portfolio' },
       { name: t('nav.store'), path: '/store', key: 'store' },
-      { name: t('nav.book'), action: scrollToServices, key: 'booking' },
+      { name: t('nav.book'), path: '/services', key: 'booking' },
       { name: t('nav.contact'), path: '/contact', key: 'contact' },
     ];
     // do not include a separate Admin link here; admin is toggled via the eye icon
