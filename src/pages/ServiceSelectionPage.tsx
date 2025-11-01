@@ -15,6 +15,7 @@ const services: Service[] = [
   { id: 'portraits', title: 'Retratos', description: 'Sessões individuais e familiares que capturam sua essência com um olhar único e sensível.', icon: Camera, to: '/portrait' },
   { id: 'maternity', title: 'Gestantes', description: 'Eternize o momento mais especial da maternidade com fotos delicadas e emocionantes.', icon: Baby, to: '/maternity' },
   { id: 'events', title: 'Eventos', description: 'Cobertura completa para casamentos e celebrações com profissionalismo e criatividade.', icon: Users, to: '/events' },
+  { id: 'civil', title: 'Cas. Civil', description: 'Pacotes pensados para cerimônias civis no cartório, com cobertura elegante e objetiva.', icon: Camera, to: '/events/civil' },
 ];
 
 const clampIndex = (i: number, len: number) => ((i % len) + len) % len;
