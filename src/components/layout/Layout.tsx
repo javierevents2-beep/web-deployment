@@ -156,8 +156,6 @@ const Layout = ({ children }: LayoutProps) => {
       <main className="flex-grow">
         {children}
       </main>
-      {!isAdmin && <Footer />}
-
       <FloatingWhatsApp />
     </div>
   );
