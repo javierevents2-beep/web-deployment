@@ -1179,13 +1179,33 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                       )}
                     </button>
                   </div>
-                  <button
-                    onClick={() => window.dispatchEvent(new CustomEvent('adminOpenContract', { detail: { id: String(ev.id).split('__')[0] } }))}
-                    className="w-full md:w-auto px-3 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <ExternalLink size={14} />
-                    Ir al contrato
-                  </button>
+                  <div className="flex gap-2">
+                    {(() => {
+                      const wa = buildWhatsAppUrl(ev, expandedDay || undefined);
+                      if (wa) {
+                        return (
+                          <a href={wa.url} target="_blank" rel="noopener noreferrer" className="px-3 py-2 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                            <Phone size={14} />
+                            Confirmar via WhatsApp
+                          </a>
+                        );
+                      }
+                      return (
+                        <button disabled className="px-3 py-2 bg-gray-200 text-gray-600 rounded text-sm font-medium flex items-center justify-center gap-2" title="No hay teléfono">
+                          <Phone size={14} />
+                          WhatsApp
+                        </button>
+                      );
+                    })()}
+
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('adminOpenContract', { detail: { id: String(ev.id).split('__')[0] } }))}
+                      className="w-full md:w-auto px-3 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ExternalLink size={14} />
+                      Ir al contrato
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
