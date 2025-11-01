@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
 import Header from './Header';
-import Footer from './Footer';
 import { Camera } from 'lucide-react';
 import ImageAdminOverlay from '../admin/ImageAdminOverlay';
 import FloatingWhatsApp from './FloatingWhatsApp';
