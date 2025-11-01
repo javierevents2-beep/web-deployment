@@ -23,5 +23,11 @@ export default defineConfig(async () => {
     optimizeDeps: {
       exclude: ['lucide-react'],
     },
+    server: {
+      hmr: {
+        // Disable Vite's error overlay to avoid runtime overlay exceptions during development
+        overlay: false,
+      },
+    },
   };
 });
