@@ -125,7 +125,7 @@ const ServiceSelectionPage = () => {
                   }}
                 >
                   <div className="flex flex-col items-center text-center h-full">
-                    <div className={`p-4 rounded-full mb-4 ${isActive ? 'bg-white/10' : 'bg-white/10/40'}`} style={{ width: 80, height: 80 }}>
+                    <div className="p-4 rounded-full mb-4 bg-white/10" style={{ width: 80, height: 80 }}>
                       <Icon size={36} className="mx-auto" />
                     </div>
                     <h3 className={`text-2xl font-playfair mb-3 ${isActive ? 'text-white' : 'text-gray-200'}`}>{s.title}</h3>
