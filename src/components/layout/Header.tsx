@@ -168,7 +168,7 @@ const Header = () => {
 
     const links: { name: string; path?: string; action?: () => void; key?: string }[] = [
       { name: t('nav.home'), path: '/', key: 'home' },
-      { name: 'Serviços', action: scrollToServices },
+      { name: 'Serviços', path: '/services', key: 'services' },
       { name: t('nav.portfolio'), path: '/portfolio', key: 'portfolio' },
       { name: t('nav.store'), path: '/store', key: 'store' },
       { name: t('nav.book'), action: scrollToServices, key: 'booking' },
