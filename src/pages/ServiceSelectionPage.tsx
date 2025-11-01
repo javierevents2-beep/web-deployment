@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Camera, Users, Baby, Landmark, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, Users, Baby, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -12,121 +12,74 @@ type Service = {
 };
 
 const services: Service[] = [
-  {
-    id: 'portraits',
-    title: 'Retratos',
-    description: 'Sessões individuais e familiares que capturam sua essência com um olhar único e sensível.',
-    icon: Camera,
-    to: '/portrait',
-  },
-  {
-    id: 'maternity',
-    title: 'Gestantes',
-    description: 'Eternize o momento mais especial da maternidade com fotos delicadas e emocionantes.',
-    icon: Baby,
-    to: '/maternity',
-  },
-  {
-    id: 'events',
-    title: 'Eventos',
-    description: 'Cobertura completa para casamentos e celebrações com profissionalismo e criatividade.',
-    icon: Users,
-    to: '/events',
-  },
+  { id: 'portraits', title: 'Retratos', description: 'Sessões individuais e familiares que capturam sua essência com um olhar único e sensível.', icon: Camera, to: '/portrait' },
+  { id: 'maternity', title: 'Gestantes', description: 'Eternize o momento mais especial da maternidade com fotos delicadas e emocionantes.', icon: Baby, to: '/maternity' },
+  { id: 'events', title: 'Eventos', description: 'Cobertura completa para casamentos e celebrações com profissionalismo e criatividade.', icon: Users, to: '/events' },
 ];
 
+const clampIndex = (i: number, len: number) => ((i % len) + len) % len;
+
 const ServiceSelectionPage: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(0);
-  const [dists, setDists] = useState<number[]>(services.map(() => 1));
   const navigate = useNavigate();
 
+  // Pointer drag to change active (circular)
+  const pointer = useRef<{ startX: number; dx: number; dragging: boolean }>({ startX: 0, dx: 0, dragging: false });
+
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    const track = trackRef.current;
+    if (!track) return;
 
-    let raf = 0;
-    const update = () => {
-      const rect = el.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const children = Array.from(el.children) as HTMLElement[];
-      const newDists: number[] = [];
-      let bestIdx = 0;
-      let bestDist = Infinity;
-      children.forEach((c, i) => {
-        const r = c.getBoundingClientRect();
-        const cCenter = r.left + r.width / 2;
-        const raw = Math.abs(centerX - cCenter);
-        const norm = Math.min(1, raw / (rect.width / 2));
-        newDists[i] = norm;
-        if (raw < bestDist) {
-          bestDist = raw;
-          bestIdx = i;
-        }
-      });
-      setDists(newDists);
-      setActive(bestIdx);
+    const onPointerDown = (e: PointerEvent) => {
+      pointer.current.dragging = true;
+      pointer.current.startX = e.clientX;
+      pointer.current.dx = 0;
+      try { track.setPointerCapture(e.pointerId); } catch (err) {}
     };
 
-    const onScroll = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
+    const onPointerMove = (e: PointerEvent) => {
+      if (!pointer.current.dragging) return;
+      pointer.current.dx = e.clientX - pointer.current.startX;
     };
 
-    update();
-    el.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-
-    // drag to scroll with mouse/touch
-    let isDown = false;
-    let startX = 0;
-    let scrollLeft = 0;
-
-    const onDown = (e: MouseEvent | TouchEvent) => {
-      isDown = true;
-      startX = 'touches' in e ? e.touches[0].pageX : (e as MouseEvent).pageX;
-      scrollLeft = el.scrollLeft;
-      el.classList.add('dragging');
+    const onPointerUp = (e: PointerEvent) => {
+      if (!pointer.current.dragging) return;
+      pointer.current.dragging = false;
+      const dx = pointer.current.dx;
+      pointer.current.dx = 0;
+      if (dx > 60) {
+        // swipe right -> previous
+        setActive(a => clampIndex(a - 1, services.length));
+      } else if (dx < -60) {
+        // swipe left -> next
+        setActive(a => clampIndex(a + 1, services.length));
+      }
+      try { track.releasePointerCapture(e.pointerId); } catch (err) {}
     };
-    const onMove = (e: MouseEvent | TouchEvent) => {
-      if (!isDown) return;
-      const x = 'touches' in e ? e.touches[0].pageX : (e as MouseEvent).pageX;
-      const walk = (startX - x);
-      el.scrollLeft = scrollLeft + walk;
-    };
-    const onUp = () => { isDown = false; el.classList.remove('dragging'); };
 
-    el.addEventListener('mousedown', onDown);
-    el.addEventListener('touchstart', onDown, { passive: true });
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('touchmove', onMove, { passive: false });
-    window.addEventListener('mouseup', onUp);
-    window.addEventListener('touchend', onUp);
+    track.addEventListener('pointerdown', onPointerDown as any);
+    track.addEventListener('pointermove', onPointerMove as any);
+    track.addEventListener('pointerup', onPointerUp as any);
+    track.addEventListener('pointercancel', onPointerUp as any);
 
     return () => {
-      if (raf) cancelAnimationFrame(raf);
-      el.removeEventListener('scroll', onScroll as any);
-      window.removeEventListener('resize', onScroll as any);
-      el.removeEventListener('mousedown', onDown as any);
-      el.removeEventListener('touchstart', onDown as any);
-      window.removeEventListener('mousemove', onMove as any);
-      window.removeEventListener('touchmove', onMove as any);
-      window.removeEventListener('mouseup', onUp as any);
-      window.removeEventListener('touchend', onUp as any);
+      track.removeEventListener('pointerdown', onPointerDown as any);
+      track.removeEventListener('pointermove', onPointerMove as any);
+      track.removeEventListener('pointerup', onPointerUp as any);
+      track.removeEventListener('pointercancel', onPointerUp as any);
     };
   }, []);
 
-  const scrollToIndex = (idx: number) => {
-    const el = containerRef.current;
-    if (!el) return;
-    const child = el.children[idx] as HTMLElement;
-    child?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  const goNext = () => setActive(a => clampIndex(a + 1, services.length));
+  const goPrev = () => setActive(a => clampIndex(a - 1, services.length));
+
+  const goto = (idx: number, to?: string) => {
+    if (idx === active && to) navigate(to);
+    else setActive(idx);
   };
 
-  const handleClick = (idx: number, to?: string) => {
-    if (idx === active && to) navigate(to);
-    else scrollToIndex(idx);
-  };
+  const len = services.length;
 
   return (
     <div className="min-h-screen w-full bg-black text-white flex items-center justify-center p-6">
@@ -135,75 +88,81 @@ const ServiceSelectionPage: React.FC = () => {
         <p className="text-center text-gray-300 mb-8">Oferecemos uma variedade de serviços fotográficos profissionais para capturar seus momentos mais especiais com qualidade e sensibilidade.</p>
 
         <div className="relative">
-          <button
-            aria-label="Previous"
-            onClick={() => scrollToIndex(Math.max(0, active - 1))}
-            className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors"
-          >
+          <button aria-label="Previous" onClick={goPrev} className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors">
             <ChevronLeft />
           </button>
 
-          <div ref={containerRef} className="services-carousel flex gap-6 overflow-x-auto no-scrollbar px-6 py-6 snap-x snap-mandatory">
-            {services.map((s, i) => {
-              const Icon = s.icon;
-              const dist = dists[i] ?? 1;
-              const scale = 1.15 - 0.25 * Math.min(1, dist);
-              const opacity = 1 - 0.4 * Math.min(1, dist);
-              const shadow = 12 - 8 * Math.min(1, dist);
-              return (
-                <motion.div
-                  key={s.id}
-                  onClick={() => handleClick(i, s.to)}
-                  className="snap-center flex-shrink-0 w-[80%] sm:w-80 md:w-96 lg:w-[32%] rounded-2xl p-8 mx-2 cursor-pointer select-none"
-                  style={{
-                    border: '1px solid rgba(255,255,255,0.06)'
-                  }}
-                  animate={{ scale, opacity }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                >
-                  <div style={{
-                    boxShadow: `0 ${shadow}px ${Math.max(20, shadow * 4)}px rgba(200,200,200,${0.06 + (0.15 * (1 - dist))})`,
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))'
-                  }} className="h-full rounded-2xl flex flex-col">
-                    <div className="flex-1 flex flex-col items-center text-center">
-                      <div className="p-4 rounded-full mb-4 bg-white/10" style={{ width: 88, height: 88 }}>
-                        <Icon size={36} className="mx-auto" />
-                      </div>
-                      <h3 className="text-2xl font-playfair mb-3">{s.title}</h3>
-                      <p className="text-sm text-gray-300 mb-6 leading-relaxed">{s.description}</p>
-                    </div>
+          <div ref={trackRef} className="relative flex items-center justify-center overflow-hidden" style={{ height: 460 }}>
+            <div className="relative w-full flex items-center justify-center">
+              {services.map((s, i) => {
+                // circular offset calculation
+                let raw = i - active;
+                if (raw > len / 2) raw -= len;
+                if (raw < -len / 2) raw += len;
+                const offset = raw; // -1,0,1 etc
 
-                    <div className="mt-4 flex justify-center">
-                      <button className={`px-6 py-2 rounded-xl border border-white text-sm transition-transform ${dist < 0.25 ? 'bg-white text-black' : 'bg-transparent text-white/90 hover:scale-105 hover:bg-white/10'}`}>
-                        {dist < 0.25 ? 'Selecionar' : 'Ver mais'}
-                      </button>
+                // layout calculations
+                const distance = 420; // px between centers
+                const x = offset * distance;
+                const scale = offset === 0 ? 1.15 : Math.max(0.9, 1 - Math.abs(offset) * 0.12);
+                const z = 100 - Math.abs(offset);
+                const opacity = offset === 0 ? 1 : Math.max(0.35, 1 - Math.abs(offset) * 0.35);
+                const shadow = offset === 0 ? 30 : Math.max(6, 20 - Math.abs(offset) * 10);
+
+                const Icon = s.icon;
+
+                return (
+                  <motion.div
+                    key={s.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ x, scale, opacity }}
+                    transition={{ type: 'spring', stiffness: 220, damping: 28 }}
+                    style={{ zIndex: z }}
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <div style={{ width: 360 }} className={`rounded-2xl p-8 mx-3 ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
+                      <div style={{
+                        boxShadow: `0 ${Math.round(12 * (1 - Math.abs(offset)))}px ${Math.max(20, shadow)}px rgba(200,200,200,${0.06 + (0.15 * (1 - Math.abs(offset)))})`
+                      }} className="h-full rounded-2xl flex flex-col items-center text-center px-4 py-6">
+                        <div className="p-4 rounded-full mb-4 bg-white/10" style={{ width: 88, height: 88 }}>
+                          <Icon size={36} className="mx-auto" />
+                        </div>
+                        <h3 className="text-2xl font-playfair mb-3">{s.title}</h3>
+                        <p className="text-sm text-gray-300 mb-6 leading-relaxed">{s.description}</p>
+
+                        <div className="mt-auto">
+                          <button onClick={() => goto(i, s.to)} className={`px-6 py-2 rounded-xl border border-white text-sm transition-transform ${offset === 0 ? 'bg-white text-black' : 'bg-transparent text-white/90 hover:scale-105 hover:bg-white/10'}`}>
+                            {offset === 0 ? 'Selecionar' : 'Ver mais'}
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
 
-          <button
-            aria-label="Next"
-            onClick={() => scrollToIndex(Math.min(services.length - 1, active + 1))}
-            className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors"
-          >
+          <button aria-label="Next" onClick={goNext} className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors">
             <ChevronRight />
           </button>
 
-          {/* gradients */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent" />
+          {/* circular depth overlay */}
+          <div className="absolute inset-0 pointer-events-none">
+            <svg className="w-full h-full" preserveAspectRatio="none">
+              <defs>
+                <radialGradient id="g" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.02)" />
+                  <stop offset="100%" stopColor="rgba(0,0,0,0.6)" />
+                </radialGradient>
+              </defs>
+              <rect x="0" y="0" width="100%" height="100%" fill="url(#g)" />
+            </svg>
+          </div>
         </div>
       </div>
 
-      <style>{`
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .services-carousel > div { scroll-snap-align: center; }
-        .services-carousel.dragging { cursor: grabbing; cursor: -webkit-grabbing; }
-      `}</style>
+      <style>{` .font-playfair { font-family: 'Playfair Display', serif; } `}</style>
     </div>
   );
 };
