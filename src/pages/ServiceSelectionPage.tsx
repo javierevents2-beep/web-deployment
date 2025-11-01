@@ -105,13 +105,18 @@ const ServiceSelectionPage: React.FC = () => {
 
                 // layout calculations
                 const containerWidth = trackRef.current?.clientWidth ?? 1200;
+                const cardWidth = Math.min(360, containerWidth * 0.7);
                 const distance = Math.min(420, containerWidth * 0.45); // responsive spacing
                 const maxVisible = 2; // keep cards within screen
                 let clampedOffset = offset;
                 if (Math.abs(clampedOffset) > maxVisible) {
                   clampedOffset = Math.sign(clampedOffset) * maxVisible;
                 }
-                const x = clampedOffset * distance;
+                // compute max X so cards never exceed viewport bounds
+                const maxX = Math.max(0, (containerWidth / 2) - (cardWidth / 2) - 24);
+                let x = clampedOffset * distance;
+                if (x > maxX) x = maxX;
+                if (x < -maxX) x = -maxX;
                 const scale = clampedOffset === 0 ? 1.15 : Math.max(0.75, 1 - Math.abs(clampedOffset) * 0.12);
                 const z = 100 - Math.abs(clampedOffset);
                 const opacity = clampedOffset === 0 ? 1 : Math.max(0.25, 1 - Math.abs(clampedOffset) * 0.35);
