@@ -25,6 +25,7 @@ const AdminStorePage = lazyWithRetry(() => import('./pages/AdminStorePage'));
 const AdminContractPreviewPage = safeLazy(() => import('./pages/AdminContractPreviewPage'));
 const PhotoSharingPage = safeLazy(() => import('./pages/PhotoSharingPage'));
 const FinancialPlannerPage = safeLazy(() => import('./pages/FinancialPlannerPage'));
+const ServiceSelectionPage = safeLazy(() => import('./pages/ServiceSelectionPage'));
 import './styles/globals.css';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
@@ -57,6 +58,7 @@ function App() {
                   <Route path="/packages-admin" element={<GuardedRoute page="packagesAdmin"><PackagesAdminPage /></GuardedRoute>} />
                   <Route path="/admin-store" element={<GuardedRoute page="admin"><AdminStorePage /></GuardedRoute>} />
                   <Route path="/admin-setup" element={<GuardedRoute page="admin"><AdminSetupPage /></GuardedRoute>} />
+                  <Route path="/services" element={<ServiceSelectionPage />} />
                   <Route path="*" element={<HomePage />} />
                 </Routes>
                 </Suspense>
