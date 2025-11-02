@@ -11,7 +11,7 @@ type Service = {
   to?: string;
 };
 
-const services: Service[] = [
+export const services: Service[] = [
   { id: 'portraits', title: 'Retratos', description: 'Sessões individuais e familiares que capturam sua essência com um olhar único e sensível.', icon: Camera, to: '/portrait' },
   { id: 'maternity', title: 'Gestantes', description: 'Eternize o momento mais especial da maternidade com fotos delicadas e emocionantes.', icon: Baby, to: '/maternity' },
   { id: 'events', title: 'Eventos', description: 'Cobertura completa para casamentos e celebrações com profissionalismo e criatividade.', icon: Users, to: '/events' },
