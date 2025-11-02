@@ -36,6 +36,35 @@ export const TypeformAdminPanel: React.FC = () => {
       try { q = query(col, orderBy('created_at', 'desc')); } catch (_) { q = col; }
       const snap = await getDocs(q);
       const raw = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
+
+      // If there are no cards yet, seed from services list
+      if (raw.length === 0) {
+        try {
+          const { services } = await import('./ServiceSelectionPage');
+          const created: any[] = [];
+          for (const s of services) {
+            const docRef = await addDoc(collection(db, 'typeform_cards'), {
+              title: s.title,
+              description: s.description,
+              image_url: '',
+              active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              source_id: s.id,
+            });
+            created.push({ id: docRef.id, title: s.title, description: s.description });
+          }
+          showNotice(`${created.length} cards importadas desde servicios`, 'success');
+          // refetch after seeding
+          const snap2 = await getDocs(q);
+          const raw2 = snap2.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
+          setCards(raw2);
+          return;
+        } catch (err) {
+          console.error('seed from services error', err);
+        }
+      }
+
       setCards(raw);
     } catch (e) {
       console.error('fetchCards error', e);
