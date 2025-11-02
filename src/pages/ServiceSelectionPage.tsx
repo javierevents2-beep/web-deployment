@@ -102,7 +102,7 @@ const ServiceSelectionPage: React.FC = () => {
                 if (raw < -len / 2) raw += len;
                 const offset = raw; // -1,0,1 etc
 
-                // layout calculations
+                // layout calculations (compute absolute left coordinate centered in container)
                 const containerWidth = trackRef.current?.clientWidth ?? 1200;
                 const cardWidth = Math.min(300, containerWidth * 0.6);
                 const distance = Math.min(360, containerWidth * 0.35); // tighter spacing
@@ -111,11 +111,13 @@ const ServiceSelectionPage: React.FC = () => {
                 if (Math.abs(clampedOffset) > maxVisible) {
                   clampedOffset = Math.sign(clampedOffset) * maxVisible;
                 }
-                // compute max X so cards never exceed viewport bounds
-                const maxX = Math.max(0, (containerWidth / 2) - (cardWidth / 2) - 24);
-                let x = clampedOffset * distance;
+                const centerX = Math.max(24, Math.floor((containerWidth / 2) - (cardWidth / 2)));
+                let x = centerX + clampedOffset * distance;
+                // clamp between margins so card never leaves viewport
+                const minX = 24;
+                const maxX = Math.max(minX, Math.floor(containerWidth - cardWidth - 24));
+                if (x < minX) x = minX;
                 if (x > maxX) x = maxX;
-                if (x < -maxX) x = -maxX;
                 const scale = clampedOffset === 0 ? 1.08 : Math.max(0.82, 1 - Math.abs(clampedOffset) * 0.12);
                 const z = 100 - Math.abs(clampedOffset);
                 const opacity = clampedOffset === 0 ? 1 : Math.max(0.35, 1 - Math.abs(clampedOffset) * 0.35);
@@ -126,11 +128,11 @@ const ServiceSelectionPage: React.FC = () => {
                 return (
                   <motion.div
                     key={s.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.9, x }}
                     animate={{ x, scale, opacity }}
                     transition={{ type: 'spring', stiffness: 220, damping: 28 }}
-                    style={{ zIndex: z }}
-                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                    style={{ zIndex: z, left: 0, position: 'absolute' }}
+                    className="absolute top-1/2 -translate-y-1/2"
                   >
                     <div style={{ width: cardWidth }} className={`rounded-2xl p-6 mx-2 flex items-center justify-center ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
                       <div style={{
