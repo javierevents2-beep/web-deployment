@@ -85,10 +85,10 @@ const ServiceSelectionPage: React.FC = () => {
   return (
     <div className="w-full bg-black text-white relative">
       <div className="max-w-6xl w-full h-screen flex flex-col justify-start mx-auto px-4 md:px-8">
-        <button onClick={() => navigate('/')} aria-label="Volver" className="absolute top-4 left-4 z-50 px-3 py-2 rounded-md border border-white text-white bg-transparent hover:bg-white/6 transition">Volver</button>
+        <button onClick={() => navigate('/')} aria-label="Volver" className="absolute top-4 right-4 z-50 px-3 py-2 rounded-md border border-white text-white bg-transparent hover:bg-white/6 transition">Volver</button>
 
-        <h1 className="text-4xl md:text-5xl font-playfair text-center mb-4">Nossos Serviços</h1>
-        <p className="text-center text-gray-300 mb-6">Oferecemos uma variedade de serviços fotográficos profissionais para capturar seus momentos mais especiais com qualidade e sensibilidade.</p>
+        <h1 className="text-4xl md:text-5xl font-playfair text-center mb-2">Nossos Serviços</h1>
+        <p className="text-center text-gray-300 mb-2">Oferecemos uma variedade de serviços fotográficos profissionais para capturar seus momentos más especiales com qualidade e sensibilidade.</p>
 
         <div className="relative flex-1">
           <button aria-label="Previous" onClick={goPrev} className="hidden md:flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/6 rounded-full hover:bg-white/10 transition-colors">
