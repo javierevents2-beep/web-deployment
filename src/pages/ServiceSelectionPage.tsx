@@ -85,7 +85,7 @@ const ServiceSelectionPage: React.FC = () => {
   return (
     <div className="w-full bg-black text-white relative">
       <div className="max-w-6xl w-full h-screen flex flex-col justify-start mx-auto px-4 md:px-8">
-        <button onClick={() => navigate('/')} aria-label="Volver" className="absolute top-4 right-4 z-50 px-3 py-2 rounded-md border border-white text-white bg-transparent hover:bg-white/6 transition">Volver</button>
+        <button onClick={() => navigate('/')} aria-label="Volver" className="absolute z-50" style={{ right: 16, top: 16, padding: '8px 12px', borderRadius: 6, borderColor: 'rgb(255,255,255)', borderWidth: 0.8, backgroundColor: 'rgba(0,0,0,0)', color: 'white', transitionDuration: '0.15s', transitionProperty: 'color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter' }}>Volver</button>
 
         <h1 className="text-center" style={{ margin: '60px 0 8px', font: '400 48px/48px "Playfair Display", serif' }}>Nossos Serviços</h1>
         <p className="text-center text-gray-300 mb-2">Oferecemos uma variedade de serviços fotográficos profissionais para capturar seus momentos más especiales com qualidade e sensibilidade.</p>
