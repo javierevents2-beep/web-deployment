@@ -14,7 +14,7 @@ type TypeformCard = {
   updated_at?: string;
 };
 
-const TypeformAdminPage: React.FC = () => {
+export const TypeformAdminPanel: React.FC = () => {
   const [cards, setCards] = useState<TypeformCard[]>([]);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -213,5 +213,11 @@ const TypeformAdminPage: React.FC = () => {
     </AdminGuard>
   );
 };
+
+const TypeformAdminPage: React.FC = () => (
+  <AdminGuard>
+    <TypeformAdminPanel />
+  </AdminGuard>
+);
 
 export default TypeformAdminPage;
