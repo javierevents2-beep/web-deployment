@@ -150,9 +150,11 @@ const Layout = ({ children }: LayoutProps) => {
     );
   }
 
+  const isServices = location.pathname === '/services';
+
   return (
     <div className={`flex flex-col min-h-screen opacity-100 transition-opacity duration-500 ${isAdmin ? 'bg-white text-black' : 'bg-background text-primary'}`}>
-      {!isAdmin && <Header />}
+      {!isAdmin && !isServices && <Header />}
       <main className="flex-grow">
         {children}
       </main>
