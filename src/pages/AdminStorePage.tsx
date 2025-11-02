@@ -16,6 +16,7 @@ import { db, storage } from '../utils/firebaseClient';
 import { collection, getDocs, deleteDoc, doc, updateDoc, orderBy, query, addDoc } from 'firebase/firestore';
 import { Trash2 } from 'lucide-react';
 import AdminCalendar from '../components/store/AdminCalendar';
+import { TypeformAdminPanel } from './TypeformAdminPage';
 import { useCart } from '../contexts/CartContext';
 
 const AdminStorePage: React.FC = () => {
@@ -28,7 +29,7 @@ const AdminStorePage: React.FC = () => {
     setIsCartOpen(false);
   }, [setIsCartOpen]);
 
-  const [adminView, setAdminView] = useState<'dashboard' | 'products' | 'orders' | 'contracts' | 'packages' | 'coupons' | 'settings' | 'calendar' | 'investments' | 'planner'>(() => {
+  const [adminView, setAdminView] = useState<'dashboard' | 'products' | 'orders' | 'contracts' | 'packages' | 'coupons' | 'settings' | 'calendar' | 'investments' | 'planner' | 'typeform'>(() => {
     try { return (localStorage.getItem('admin_view') as any) || 'dashboard'; } catch { return 'dashboard'; }
   });
   const [adminFullscreen, setAdminFullscreen] = useState<boolean>(() => {
@@ -241,6 +242,7 @@ const AdminStorePage: React.FC = () => {
             <button onClick={() => setAdminView('orders')} className={`px-4 py-2 rounded-none border-2 text-sm ${adminView==='orders' ? 'bg-black text-white border-black' : 'border-black text-black hover:bg-black hover:text-white'}`}>Órdenes</button>
             <button onClick={() => setAdminView('contracts')} className={`px-4 py-2 rounded-none border-2 text-sm ${adminView==='contracts' ? 'bg-black text-white border-black' : 'border-black text-black hover:bg-black hover:text-white'}`}>Contratos</button>
             <button onClick={() => setAdminView('calendar')} className={`px-4 py-2 rounded-none border-2 text-sm ${adminView==='calendar' ? 'bg-black text-white border-black' : 'border-black text-black hover:bg-black hover:text-white'}`}>Calendario</button>
+            <button onClick={() => setAdminView('typeform')} className={`px-4 py-2 rounded-none border-2 text-sm ${adminView==='typeform' ? 'bg-black text-white border-black' : 'border-black text-black hover:bg-black hover:text-white'}`}>Typeform</button>
             <button onClick={() => setAdminView('packages')} className={`px-4 py-2 rounded-none border-2 text-sm ${adminView==='packages' ? 'bg-black text-white border-black' : 'border-black text-black hover:bg-black hover:text-white'}`}>Paquetes</button>
             <button onClick={() => setAdminView('coupons')} className={`px-4 py-2 rounded-none border-2 text-sm ${adminView==='coupons' ? 'bg-black text-white border-black' : 'border-black text-black hover:bg-black hover:text-white'}`}>Cupones</button>
             <button onClick={() => setAdminView('settings')} className={`px-4 py-2 rounded-none border-2 text-sm ${adminView==='settings' ? 'bg-black text-white border-black' : 'border-black text-black hover:bg-black hover:text-white'}`}>Ajustes</button>
@@ -268,6 +270,7 @@ const AdminStorePage: React.FC = () => {
             <option value="coupons">Cupones</option>
             <option value="settings">Ajustes</option>
             <option value="investments">Inversiones</option>
+            <option value="typeform">Typeform</option>
             <option value="planner">Planificador</option>
           </select>
         </div>
@@ -282,7 +285,7 @@ const AdminStorePage: React.FC = () => {
         )}
 
         {adminView === 'dashboard' && (
-          <FinancialDashboard onNavigate={(v: string) => setAdminView(v as 'dashboard' | 'products' | 'orders' | 'contracts' | 'packages' | 'coupons' | 'settings' | 'calendar' | 'investments' | 'planner')} darkMode={adminDark} />
+          <FinancialDashboard onNavigate={(v: string) => setAdminView(v as 'dashboard' | 'products' | 'orders' | 'contracts' | 'packages' | 'coupons' | 'settings' | 'calendar' | 'investments' | 'planner' | 'typeform')} darkMode={adminDark} />
         )}
 
         {adminView === 'products' && (
@@ -340,6 +343,7 @@ const AdminStorePage: React.FC = () => {
         {adminView === 'orders' && <OrdersManagement />}
         {adminView === 'contracts' && <ContractsManagement openContractId={openContractId} onOpened={() => setOpenContractId(null)} />}
         {adminView === 'packages' && <PhotoPackagesManagement />}
+        {adminView === 'typeform' && <TypeformAdminPanel /> }
         {adminView === 'coupons' && <CouponsManagement />}
         {adminView === 'investments' && <InvestmentsManagement />}
         {adminView === 'planner' && <FinancialPlannerPage />}
@@ -374,7 +378,7 @@ const AdminStorePage: React.FC = () => {
               </div>
             </div>
 
-            {adminView === 'dashboard' && <FinancialDashboard onNavigate={(v: string) => setAdminView(v as 'dashboard' | 'packages' | 'products' | 'coupons' | 'contracts' | 'orders' | 'calendar' | 'investments' | 'settings' | 'planner')} darkMode={adminDark} />}
+            {adminView === 'dashboard' && <FinancialDashboard onNavigate={(v: string) => setAdminView(v as 'dashboard' | 'packages' | 'products' | 'coupons' | 'contracts' | 'orders' | 'calendar' | 'investments' | 'settings' | 'planner' | 'typeform')} darkMode={adminDark} />}
             {adminView === 'products' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
@@ -429,6 +433,7 @@ const AdminStorePage: React.FC = () => {
             {adminView === 'orders' && <OrdersManagement />}
             {adminView === 'contracts' && <ContractsManagement openContractId={openContractId} onOpened={() => setOpenContractId(null)} />}
             {adminView === 'packages' && <PhotoPackagesManagement />}
+        {adminView === 'typeform' && <TypeformAdminPanel /> }
             {adminView === 'coupons' && <CouponsManagement />}
             {adminView === 'investments' && <InvestmentsManagement />}
             {adminView === 'planner' && <FinancialPlannerPage />}
