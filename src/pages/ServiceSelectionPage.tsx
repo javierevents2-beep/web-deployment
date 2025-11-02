@@ -104,9 +104,9 @@ const ServiceSelectionPage: React.FC = () => {
 
                 // layout calculations
                 const containerWidth = trackRef.current?.clientWidth ?? 1200;
-                const cardWidth = Math.min(360, containerWidth * 0.7);
-                const distance = Math.min(420, containerWidth * 0.45); // responsive spacing
-                const maxVisible = 2; // keep cards within screen
+                const cardWidth = Math.min(300, containerWidth * 0.6);
+                const distance = Math.min(360, containerWidth * 0.35); // tighter spacing
+                const maxVisible = 1.5; // show fewer off-center cards
                 let clampedOffset = offset;
                 if (Math.abs(clampedOffset) > maxVisible) {
                   clampedOffset = Math.sign(clampedOffset) * maxVisible;
@@ -116,10 +116,10 @@ const ServiceSelectionPage: React.FC = () => {
                 let x = clampedOffset * distance;
                 if (x > maxX) x = maxX;
                 if (x < -maxX) x = -maxX;
-                const scale = clampedOffset === 0 ? 1.15 : Math.max(0.75, 1 - Math.abs(clampedOffset) * 0.12);
+                const scale = clampedOffset === 0 ? 1.08 : Math.max(0.82, 1 - Math.abs(clampedOffset) * 0.12);
                 const z = 100 - Math.abs(clampedOffset);
-                const opacity = clampedOffset === 0 ? 1 : Math.max(0.25, 1 - Math.abs(clampedOffset) * 0.35);
-                const shadow = clampedOffset === 0 ? 30 : Math.max(4, 20 - Math.abs(clampedOffset) * 10);
+                const opacity = clampedOffset === 0 ? 1 : Math.max(0.35, 1 - Math.abs(clampedOffset) * 0.35);
+                const shadow = clampedOffset === 0 ? 24 : Math.max(3, 16 - Math.abs(clampedOffset) * 8);
 
                 const Icon = s.icon;
 
