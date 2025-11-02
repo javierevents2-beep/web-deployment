@@ -131,13 +131,14 @@ const ServiceSelectionPage: React.FC = () => {
                     initial={{ opacity: 0, scale: 0.9, x }}
                     animate={{ x, scale, opacity }}
                     transition={{ type: 'spring', stiffness: 220, damping: 28 }}
-                    style={{ zIndex: z, left: 0, position: 'absolute', top: 'calc(50% - 260px)' }}
+                    style={{ zIndex: z, left: 0, position: 'absolute', top: 'calc(50% - 180px)' }}
                     className="absolute"
                   >
                     <div style={{ width: cardWidth }} className={`rounded-2xl p-6 mx-2 flex items-center justify-center ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
                       <div style={{
-                        boxShadow: `0 ${Math.round(10 * (1 - Math.abs(offset)))}px ${Math.max(14, shadow)}px rgba(200,200,200,${0.06 + (0.15 * (1 - Math.abs(offset)))})`
-                      }} className="max-h-[70vh] rounded-2xl flex flex-col items-center text-center px-3 py-4">
+                        boxShadow: `0 ${Math.round(10 * (1 - Math.abs(offset)))}px ${Math.max(18, shadow)}px rgba(200,200,200,${0.06 + (0.15 * (1 - Math.abs(offset)))})`,
+                        minHeight: 520
+                      }} className="max-h-[90vh] rounded-2xl flex flex-col items-center text-center px-4 py-6">
                         <div className="p-4 rounded-full mb-4 bg-white/10" style={{ width: 88, height: 88 }}>
                           <Icon size={36} className="mx-auto" />
                         </div>
