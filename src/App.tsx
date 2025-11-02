@@ -52,6 +52,7 @@ function App() {
                   <Route path="/store" element={<GuardedRoute page="store"><StorePage /></GuardedRoute>} />
                   <Route path="/admin" element={<AdminGuard><AdminStorePage /></AdminGuard>} />
                   <Route path="/admin/contract-preview" element={<AdminGuard><AdminContractPreviewPage /></AdminGuard>} />
+                  <Route path="/admin/typeform" element={<AdminGuard><TypeformAdminPage /></AdminGuard>} />
                   <Route path="/admin/financial-planner" element={<AdminGuard><FinancialPlannerPage /></AdminGuard>} />
                   <Route path="/photo-sharing/:contractId" element={<AdminGuard><PhotoSharingPage /></AdminGuard>} />
                   <Route path="/photo-gallery/:shareToken" element={<PhotoSharingPage />} />
