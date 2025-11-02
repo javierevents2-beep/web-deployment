@@ -137,7 +137,7 @@ const ServiceSelectionPage: React.FC = () => {
                     <div style={{ width: cardWidth }} className={`rounded-2xl p-6 mx-2 flex items-center justify-center ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
                       <div style={{
                         boxShadow: `0 ${Math.round(10 * (1 - Math.abs(offset)))}px ${Math.max(18, shadow)}px rgba(200,200,200,${0.06 + (0.15 * (1 - Math.abs(offset)))})`,
-                        minHeight: 520
+                        height: 400
                       }} className="max-h-[90vh] rounded-2xl flex flex-col items-center text-center px-4 py-6">
                         <div className="p-4 rounded-full mb-4 bg-white/10" style={{ width: 88, height: 88 }}>
                           <Icon size={36} className="mx-auto" />
