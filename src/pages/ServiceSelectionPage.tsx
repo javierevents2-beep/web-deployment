@@ -87,7 +87,7 @@ const ServiceSelectionPage: React.FC = () => {
       <div className="max-w-6xl w-full h-screen flex flex-col justify-start mx-auto px-4 md:px-8">
         <button onClick={() => navigate('/')} aria-label="Volver" className="absolute top-4 right-4 z-50 px-3 py-2 rounded-md border border-white text-white bg-transparent hover:bg-white/6 transition">Volver</button>
 
-        <h1 className="text-4xl md:text-5xl font-playfair text-center mb-2">Nossos Serviços</h1>
+        <h1 className="text-center" style={{ margin: '60px 0 8px', font: '400 48px/48px "Playfair Display", serif' }}>Nossos Serviços</h1>
         <p className="text-center text-gray-300 mb-2">Oferecemos uma variedade de serviços fotográficos profissionais para capturar seus momentos más especiales com qualidade e sensibilidade.</p>
 
         <div className="relative flex-1">
