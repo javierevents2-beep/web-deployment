@@ -131,7 +131,7 @@ const ServiceSelectionPage: React.FC = () => {
                     initial={{ opacity: 0, scale: 0.9, x }}
                     animate={{ x, scale, opacity }}
                     transition={{ type: 'spring', stiffness: 220, damping: 28 }}
-                    style={{ zIndex: z, left: 0, position: 'absolute', top: 'calc(50% - 180px)' }}
+                    style={{ zIndex: z, left: 0, position: 'absolute', top: 'calc(50% - 200px)' }}
                     className="absolute"
                   >
                     <div style={{ width: cardWidth }} className={`rounded-2xl p-6 mx-2 flex items-center justify-center ${offset === 0 ? 'bg-gradient-to-b from-white/5 to-white/3' : 'bg-transparent'}`}>
