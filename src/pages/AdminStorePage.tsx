@@ -216,7 +216,8 @@ const AdminStorePage: React.FC = () => {
       'coupons': 'Cupones',
       'settings': 'Ajustes',
       'investments': 'Inversiones',
-      'planner': 'Planificador'
+      'planner': 'Planificador',
+      'typeform': 'Typeform'
     };
     return titles[adminView] || 'Dashboard';
   };
