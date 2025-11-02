@@ -22,6 +22,7 @@ const ClientDashboardPage = safeLazy(() => import('./pages/ClientDashboardPage')
 import lazyWithRetry from './utils/lazyWithRetry';
 const PackagesAdminPage = safeLazy(() => import('./pages/PackagesAdminPage'));
 const AdminStorePage = lazyWithRetry(() => import('./pages/AdminStorePage'));
+const TypeformAdminPage = safeLazy(() => import('./pages/TypeformAdminPage'));
 const AdminContractPreviewPage = safeLazy(() => import('./pages/AdminContractPreviewPage'));
 const PhotoSharingPage = safeLazy(() => import('./pages/PhotoSharingPage'));
 const FinancialPlannerPage = safeLazy(() => import('./pages/FinancialPlannerPage'));
