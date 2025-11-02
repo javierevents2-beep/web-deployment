@@ -84,7 +84,7 @@ const ServiceSelectionPage: React.FC = () => {
 
   return (
     <div className="w-full bg-black text-white">
-      <div className="max-w-6xl w-full h-screen flex flex-col justify-center mx-auto px-4 md:px-8">
+      <div className="max-w-6xl w-full h-screen flex flex-col justify-start mx-auto px-4 md:px-8">
         <h1 className="text-4xl md:text-5xl font-playfair text-center mb-4">Nossos Serviços</h1>
         <p className="text-center text-gray-300 mb-6">Oferecemos uma variedade de serviços fotográficos profissionais para capturar seus momentos mais especiais com qualidade e sensibilidade.</p>
 
