@@ -658,6 +658,8 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
 
   // Save a newly created contact
   const saveNewContact = async () => {
+    if (contactSaving) return; // prevent duplicate submissions
+    setContactSaving(true);
     try {
       const payload = {
         name: contactForm.name || 'Sin nombre',
@@ -707,23 +709,30 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
         // if a date/time was provided, create a calendar-only event (not a contract)
         if (contactForm.eventDate) {
           try {
-            const calPayload: any = {
-              name: contactForm.name || 'Contacto',
-              email: contactForm.email || '',
-              phone: contactForm.phone || '',
-              packageId: contactForm.packageId || null,
-              packageTitle: packages.find(p=>p.id===contactForm.packageId)?.title || '',
-              notes: contactForm.notes || '',
-              eventDate: contactForm.eventDate,
-              eventTime: contactForm.eventTime || '00:00',
-              eventLocation: '',
-              type: 'contact',
-              contactRef: contactRef.id,
-              createdAt: new Date().toISOString(),
-            };
-            await addDoc(collection(db, 'calendar_events'), calPayload);
-            // reload events so the calendar shows the new calendar-only event
-            await load();
+            // check if there's already a calendar event for this contact/date to avoid duplicates
+            const csnap = await getDocs(query(collection(db, 'calendar_events'), ));
+            const existing = csnap.docs.map(d => d.data()).some((d: any) => d.contactRef === contactRef.id && d.eventDate === contactForm.eventDate && d.eventTime === (contactForm.eventTime || '00:00'));
+            if (!existing) {
+              const calPayload: any = {
+                name: contactForm.name || 'Contacto',
+                email: contactForm.email || '',
+                phone: contactForm.phone || '',
+                packageId: contactForm.packageId || null,
+                packageTitle: packages.find(p=>p.id===contactForm.packageId)?.title || '',
+                notes: contactForm.notes || '',
+                eventDate: contactForm.eventDate,
+                eventTime: contactForm.eventTime || '00:00',
+                eventLocation: '',
+                type: 'contact',
+                contactRef: contactRef.id,
+                createdAt: new Date().toISOString(),
+              };
+              await addDoc(collection(db, 'calendar_events'), calPayload);
+              // reload events so the calendar shows the new calendar-only event
+              await load();
+            } else {
+              console.warn('Duplicate calendar event avoided');
+            }
           } catch (e) {
             console.error('Error creating calendar event for contact:', e);
           }
@@ -738,6 +747,8 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
     } catch (e) {
       console.error('Error creating contact:', e);
       window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Error al crear el contacto', type: 'error' } }));
+    } finally {
+      setContactSaving(false);
     }
   };
 
