@@ -971,8 +971,15 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
         <div className="bg-white rounded-xl border border-gray-200 w-full max-w-5xl p-4 md:p-6 overflow-hidden max-h-[90vh] overflow-y-auto" onClick={(e)=>e.stopPropagation()}>
           <div className="flex items-center justify-between p-4 border-b">
             <div>
-              <div className="text-lg font-medium">{viewing.clientName} — {viewing.eventType || 'Trabajo'}</div>
-              <div className="text-xs text-gray-500">Fecha principal: {viewing.eventDate || '-' } ���� Hora: {viewing.eventTime || (viewing as any).eventTime || '-'}</div>
+              <div className="text-lg font-medium">
+                {viewing.clientName} — {viewing.eventType || 'Trabajo'}
+                {((viewing as any).showPendingDeposit) ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-semibold ml-3">Pendiente depósito</span>
+                ) : ((viewing as any).isNew ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold ml-3">Nuevo</span>
+                ) : null)}
+              </div>
+              <div className="text-xs text-gray-500">Fecha principal: {viewing.eventDate || '-' } Hora: {viewing.eventTime || (viewing as any).eventTime || '-'}</div>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={()=> viewing && openEdit(viewing)} className="border px-3 py-2 rounded-none text-sm">Modificar datos</button>
