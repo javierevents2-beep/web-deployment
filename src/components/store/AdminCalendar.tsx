@@ -428,11 +428,12 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
   }, [filterYear, filterMonth]);
 
   const eventSummary = useMemo(() => {
-    const pending = filteredEvents.filter(e => e.depositPaid !== true).length;
-    const editing = filteredEvents.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted !== true).length;
-    const completed = filteredEvents.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true).length;
-    const allTotal = filteredEvents.length;
-    const totalRevenue = filteredEvents
+    const visible = filteredEvents.filter(e => !isContactEvent(e));
+    const pending = visible.filter(e => e.depositPaid !== true).length;
+    const editing = visible.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted !== true).length;
+    const completed = visible.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true).length;
+    const allTotal = visible.length;
+    const totalRevenue = visible
       .filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true)
       .reduce((sum, e) => sum + (Number(e.totalAmount || 0)), 0);
     return { pending, editing, completed, allTotal, totalRevenue };
