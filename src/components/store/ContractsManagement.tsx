@@ -119,6 +119,19 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
   const [templates, setTemplates] = useState<WorkflowTemplate[]>([]);
   const [tplEditing, setTplEditing] = useState<WorkflowTemplate | null>(null);
 
+  // Helper to read viewing fields with fallbacks to formSnapshot
+  const getViewing = (keyCandidates: string[]) => {
+    if (!viewing) return '-';
+    for (const k of keyCandidates) {
+      const v: any = (viewing as any)[k];
+      if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+      const fs = (viewing as any).formSnapshot || {};
+      const fv: any = fs[k];
+      if (fv !== undefined && fv !== null && String(fv).trim() !== '') return fv;
+    }
+    return '-';
+  };
+
   // Cache contracts whenever they change
   useEffect(() => {
     localStorage.setItem('contracts_management_cache', JSON.stringify(contracts));
@@ -1670,7 +1683,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
               <select value={editForm.couponCode || ''} onChange={e => setEditForm((f: any) => ({ ...f, couponCode: e.target.value }))} className="w-full px-3 py-2 border rounded-none">
                 <option value="">— Sin cupón —</option>
                 {coupons.map(c => (
-                  <option key={c.id} value={c.code}>{c.code} — {c.description || ''}</option>
+                  <option key={c.id} value={c.code}>{c.code} �� {c.description || ''}</option>
                 ))}
               </select>
             </div>
