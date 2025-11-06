@@ -25,6 +25,9 @@ interface ContractItem {
   paymentMethod?: string;
   depositPaid?: boolean;
   finalPaymentPaid?: boolean;
+  // ISO timestamps for when payments were recorded
+  depositPaidDate?: string;
+  finalPaymentPaidDate?: string;
   eventCompleted?: boolean;
   isEditing?: boolean;
   isNew?: boolean;
@@ -467,8 +470,24 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
     const current = contracts.find((c: ContractItem) => c.id === id);
     if (!current) return;
     const next = !Boolean(current[field]);
-    await updateDoc(doc(db, 'contracts', id), { [field]: next } as any);
+    const updates: any = { [field]: next };
+
+    // If marking payments as paid, persist timestamp
+    if (field === 'depositPaid' && next === true) {
+      updates.depositPaidDate = new Date().toISOString();
+    }
+    if (field === 'finalPaymentPaid' && next === true) {
+      updates.finalPaymentPaidDate = new Date().toISOString();
+    }
+
+    await updateDoc(doc(db, 'contracts', id), updates as any);
     await fetchContracts();
+
+    // Update viewing state if currently viewing this contract
+    if (viewing && viewing.id === id) {
+      setViewing(v => v ? { ...v, ...updates } : v);
+    }
+
     try { window.dispatchEvent(new CustomEvent('contractsUpdated')); } catch {}
   };
 
@@ -1237,12 +1256,17 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                           <span className="text-gray-600">Depósito:</span>
                           <span className="font-medium">R$ {calc.depositAmount.toFixed(0)}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 rounded text-xs ${viewing.depositPaid? 'bg-green-100 text-green-700':'bg-red-100 text-red-700'}`}>{viewing.depositPaid? 'Pagado':'No pagado'}</span>
-                          <button
-                            onClick={async ()=>{ await toggleFlag(viewing.id, 'depositPaid'); setViewing(v=> v? { ...v, depositPaid: !v.depositPaid }: v); }}
-                            className={`text-xs px-2 py-1 border rounded-none ${viewing.depositPaid? 'border-green-600 text-green-700 hover:bg-green-600 hover:text-white':'border-red-600 text-red-700 hover:bg-red-600 hover:text-white'}`}
-                          >{viewing.depositPaid? 'Marcar No pagado':'Marcar Pagado'}</button>
+                        <div className="flex items-center gap-2 flex-col">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded text-xs ${viewing.depositPaid? 'bg-green-100 text-green-700':'bg-red-100 text-red-700'}`}>{viewing.depositPaid? 'Pagado':'No pagado'}</span>
+                            <button
+                              onClick={async ()=>{ await toggleFlag(viewing.id, 'depositPaid'); }}
+                              className={`text-xs px-2 py-1 border rounded-none ${viewing.depositPaid? 'border-green-600 text-green-700 hover:bg-green-600 hover:text-white':'border-red-600 text-red-700 hover:bg-red-600 hover:text-white'}`}
+                            >{viewing.depositPaid? 'Marcar No pagado':'Marcar Pagado'}</button>
+                          </div>
+                          {viewing.depositPaidDate && (
+                            <div className="text-xs mt-1 text-gray-600">Fecha depósito: {new Date(viewing.depositPaidDate).toLocaleDateString('es-ES')}</div>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
@@ -1250,12 +1274,17 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                           <span className="text-gray-600">Restante:</span>
                           <span className="font-medium">R$ {calc.remainingAmount.toFixed(0)}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 rounded text-xs ${viewing.finalPaymentPaid? 'bg-green-100 text-green-700':'bg-red-100 text-red-700'}`}>{viewing.finalPaymentPaid? 'Pagado':'No pagado'}</span>
-                          <button
-                            onClick={async ()=>{ await toggleFlag(viewing.id, 'finalPaymentPaid'); setViewing(v=> v? { ...v, finalPaymentPaid: !v.finalPaymentPaid }: v); }}
-                            className={`text-xs px-2 py-1 border rounded-none ${viewing.finalPaymentPaid? 'border-green-600 text-green-700 hover:bg-green-600 hover:text-white':'border-red-600 text-red-700 hover:bg-red-600 hover:text-white'}`}
-                          >{viewing.finalPaymentPaid? 'Marcar No pagado':'Marcar Pagado'}</button>
+                        <div className="flex items-center gap-2 flex-col">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded text-xs ${viewing.finalPaymentPaid? 'bg-green-100 text-green-700':'bg-red-100 text-red-700'}`}>{viewing.finalPaymentPaid? 'Pagado':'No pagado'}</span>
+                            <button
+                              onClick={async ()=>{ await toggleFlag(viewing.id, 'finalPaymentPaid'); }}
+                              className={`text-xs px-2 py-1 border rounded-none ${viewing.finalPaymentPaid? 'border-green-600 text-green-700 hover:bg-green-600 hover:text-white':'border-red-600 text-red-700 hover:bg-red-600 hover:text-white'}`}
+                            >{viewing.finalPaymentPaid? 'Marcar No pagado':'Marcar Pagado'}</button>
+                          </div>
+                          {viewing.finalPaymentPaidDate && (
+                            <div className="text-xs mt-1 text-gray-600">Fecha pago final: {new Date(viewing.finalPaymentPaidDate).toLocaleDateString('es-ES')}</div>
+                          )}
                         </div>
                       </div>
                     </>
