@@ -873,8 +873,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
           <div className="col-span-2">Tel��fono</div>
           <div className="col-span-1">Tipo</div>
           <div className="col-span-1">Total</div>
-          <div className="col-span-1">Progreso del flujo</div>
-          <div className="col-span-1">Estado</div>
+          <div className="col-span-2">Progreso del flujo</div>
           <div className="col-span-1 text-right">Acciones</div>
         </div>
         {loading && <div className="p-3 md:p-4 text-sm text-gray-500">Cargando...</div>}
@@ -1837,7 +1836,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                 }
               }} className="w-full px-3 py-2 border rounded-none">
                 <option value="">— Selecciona paquete —</option>
-                {packagesList.map(p=> (<option key={p.id} value={p.title}>{p.title} — R$ {Number(p.price||0).toFixed(0)}</option>))}
+                {packagesList.map(p=> (<option key={p.id} value={p.title}>{p.title} ��� R$ {Number(p.price||0).toFixed(0)}</option>))}
                 <option value="__custom__">Paquete Personalizado</option>
               </select>
             </div>
