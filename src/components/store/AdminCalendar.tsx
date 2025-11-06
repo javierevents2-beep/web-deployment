@@ -1623,9 +1623,9 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                       </option>
                     ))}
                   </select>
-                  <input type="number" placeholder="Monto total" value={editForm.totalAmount || editingEvent.totalAmount} onChange={(e) => setEditForm({...editForm, totalAmount: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
-                  <input type="number" placeholder="Deslocamiento" value={editForm.travelFee || editingEvent.travelFee || ''} onChange={(e) => setEditForm({...editForm, travelFee: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
-                  <input type="text" placeholder="Método de pago" value={editForm.paymentMethod || editingEvent.paymentMethod} onChange={(e) => setEditForm({...editForm, paymentMethod: e.target.value})} className={`px-3 py-2 border rounded text-sm md:col-span-2 ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
+                  <input type="number" placeholder="Monto total" value={(editForm.totalAmount ?? editingEvent.totalAmount ?? '') as any} onChange={(e) => setEditForm({...editForm, totalAmount: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
+                  <input type="number" placeholder="Deslocamiento" value={(editForm.travelFee ?? editingEvent.travelFee ?? '') as any} onChange={(e) => setEditForm({...editForm, travelFee: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
+                  <input type="text" placeholder="Método de pago" value={(editForm.paymentMethod ?? editingEvent.paymentMethod ?? '') as any} onChange={(e) => setEditForm({...editForm, paymentMethod: e.target.value})} className={`px-3 py-2 border rounded text-sm md:col-span-2 ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
                 </div>
                 <div className="flex gap-2 mt-3 flex-col">
                   <button onClick={() => setShowCouponModal(true)} className="flex-1 px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors text-sm font-medium flex items-center justify-center gap-2">
