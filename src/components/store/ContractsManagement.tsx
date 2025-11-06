@@ -884,14 +884,16 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
             return (
               <div key={c.id} className="hidden md:grid grid-cols-12 p-1.5 items-center hover:bg-gray-50 hover:text-black cursor-pointer border-b text-xs md:text-sm transition-colors admin-contract-row" onClick={() => openView(c)}>
                 <div className="col-span-2 text-sm">{c.eventDate || '-'}</div>
-                <div className="col-span-3 lowercase first-letter:uppercase flex items-center gap-2">{c.clientName || 'Trabajo'}{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium whitespace-nowrap">Pendiente depósito</span>
-                  ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>)}
+                <div className="col-span-3 lowercase first-letter:uppercase flex items-center justify-between gap-2">
+                    <div className="truncate">{c.clientName || 'Trabajo'}</div>
+                    {((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium whitespace-nowrap">Pendiente depósito</span>
+                    ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold whitespace-nowrap">Nuevo</span>)}
                   </div>
                 <div className="col-span-2 text-sm">{((c as any).clientPhone || (c as any).phone || (c as any).client_phone || (c as any).formSnapshot?.phone || '') || '-'}</div>
                 <div className="col-span-1 text-sm">{c.eventType || '-'}</div>
                 <div className="col-span-1 font-semibold">R$ {Number(c.totalAmount || 0).toFixed(0)}</div>
-                <div className="col-span-1" onClick={(e) => e.stopPropagation()}>
+                <div className="col-span-2" onClick={(e) => e.stopPropagation()}>
                   <WorkflowStatusButtons
                     depositPaid={c.depositPaid}
                     finalPaymentPaid={c.finalPaymentPaid}
@@ -911,11 +913,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                     }}
                   />
                 </div>
-                <div className="col-span-1 text-right">{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium whitespace-nowrap">Pendiente depósito</span>
-                ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold whitespace-nowrap">Nuevo</span>)}
-                </div>
-                <div className="col-span-1 text-right">
+                                <div className="col-span-1 text-right">
                   {String((c as any).status || '') === 'pending_approval' ? (
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={async (e)=>{ e.stopPropagation(); await updateDoc(doc(db,'contracts', c.id), { status: 'confirmed' } as any); await fetchContracts(); try { window.dispatchEvent(new CustomEvent('contractsUpdated')); } catch {}; window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Reserva aprobada', type: 'success' } })); }} className="border-2 border-green-600 text-green-600 px-2 py-1 rounded-none hover:bg-green-600 hover:text-white">Aprobar</button>
