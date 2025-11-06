@@ -100,7 +100,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
   const [filterPhone, setFilterPhone] = useState<string>('');
   const [selected, setSelected] = useState<ContractItem | null>(null);
   const [adding, setAdding] = useState(false);
-  const [addForm, setAddForm] = useState<any>({ clientName: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', paymentMethod: 'pix' });
+  const [addForm, setAddForm] = useState<any>({ clientName: '', clientEmail: '', phone: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', packageId: '', packageTitle: '', travelFee: '', totalAmount: '', paymentMethod: 'pix' });
   const [dressOptions, setDressOptions] = useState<{ id: string; name: string; image: string; color?: string }[]>([]);
   const [imageModal, setImageModal] = useState<{ open: boolean; src?: string; alt?: string }>({ open: false });
 
