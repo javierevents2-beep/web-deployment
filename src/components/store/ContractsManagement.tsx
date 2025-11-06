@@ -902,7 +902,16 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                     isNew={c.isNew}
                     onUpdate={async (updates) => {
                       try {
-                        await updateDoc(doc(db, 'contracts', c.id), updates as any);
+                        const payload: any = { ...updates };
+                        if (updates.depositPaid === true) {
+                          payload.depositPaidDate = new Date().toISOString();
+                          payload.pendingDeposit = false;
+                          payload.showPendingDeposit = false;
+                        }
+                        if (updates.finalPaymentPaid === true) {
+                          payload.finalPaymentPaidDate = new Date().toISOString();
+                        }
+                        await updateDoc(doc(db, 'contracts', c.id), payload as any);
                         await fetchContracts();
                         window.dispatchEvent(new CustomEvent('contractsUpdated'));
                         window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Estado actualizado', type: 'success' } }));
@@ -962,16 +971,25 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                   eventCompleted={c.eventCompleted}
                   isNew={c.isNew}
                   onUpdate={async (updates) => {
-                    try {
-                      await updateDoc(doc(db, 'contracts', c.id), updates as any);
-                      await fetchContracts();
-                      window.dispatchEvent(new CustomEvent('contractsUpdated'));
-                      window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Estado actualizado', type: 'success' } }));
-                    } catch (e) {
-                      console.error('Error updating contract status:', e);
-                      window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Error al actualizar', type: 'error' } }));
-                    }
-                  }}
+                      try {
+                        const payload: any = { ...updates };
+                        if (updates.depositPaid === true) {
+                          payload.depositPaidDate = new Date().toISOString();
+                          payload.pendingDeposit = false;
+                          payload.showPendingDeposit = false;
+                        }
+                        if (updates.finalPaymentPaid === true) {
+                          payload.finalPaymentPaidDate = new Date().toISOString();
+                        }
+                        await updateDoc(doc(db, 'contracts', c.id), payload as any);
+                        await fetchContracts();
+                        window.dispatchEvent(new CustomEvent('contractsUpdated'));
+                        window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Estado actualizado', type: 'success' } }));
+                      } catch (e) {
+                        console.error('Error updating contract status:', e);
+                        window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Error al actualizar', type: 'error' } }));
+                      }
+                    }}
                 />
               </div>
             </div>
@@ -1359,7 +1377,11 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                   onUpdate={async (updates) => {
                     try {
                       const payload: any = { ...updates };
-                      if (updates.depositPaid === true) payload.depositPaidDate = new Date().toISOString();
+                      if (updates.depositPaid === true) {
+                        payload.depositPaidDate = new Date().toISOString();
+                        payload.pendingDeposit = false;
+                        payload.showPendingDeposit = false;
+                      }
                       if (updates.finalPaymentPaid === true) payload.finalPaymentPaidDate = new Date().toISOString();
                       await updateDoc(doc(db, 'contracts', viewing.id), payload as any);
                       setViewing(v => v ? { ...v, ...payload } : v);
