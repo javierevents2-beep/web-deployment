@@ -328,7 +328,6 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
   const searchResults = useMemo(() => {
     if (!filterPhone.trim()) return [];
     return events.filter(ev => {
-      if (isContactEvent(ev)) return false;
       const d = toLocalDate(ev.eventDate);
       if (!d) return false;
 
