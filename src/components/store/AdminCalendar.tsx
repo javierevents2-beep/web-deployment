@@ -391,6 +391,22 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
     return map;
   }, [filteredEvents]);
 
+  // Helper to format dates as YYYY-MM-DD
+  const formatDateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+
+  const handleDayClick = (date: Date | null, key: string) => {
+    if (!date) return;
+    const dayEvents = eventsByDay.get(key) || [];
+    if (dayEvents.length === 0) {
+      const formatted = formatDateKey(date);
+      try { setAddForm(prev => ({ ...prev, eventDate: formatted })); } catch (e) { setAddForm({ ...addForm, eventDate: formatted }); }
+      try { setContactForm(prev => ({ ...prev, eventDate: formatted })); } catch (e) { setContactForm({ ...contactForm, eventDate: formatted }); }
+      setAdding(true);
+    } else {
+      setExpandedDay(key);
+    }
+  };
+
   const miniMonthDays = useMemo(() => {
     const y = current.y;
     const m = current.m;
