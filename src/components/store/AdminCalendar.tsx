@@ -24,6 +24,9 @@ interface ContractItem {
   paymentMethod?: string;
   depositPaid?: boolean;
   finalPaymentPaid?: boolean;
+  // ISO timestamps for when payments were recorded
+  depositPaidDate?: string;
+  finalPaymentPaidDate?: string;
   eventCompleted?: boolean;
   isEditing?: boolean;
   status?: 'pending' | 'booked' | 'delivered' | 'cancelled' | 'pending_payment' | 'confirmed' | 'pending_approval' | 'released';
@@ -433,14 +436,32 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
     const editing = visible.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted !== true).length;
     const completed = visible.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true).length;
     const allTotal = visible.length;
+
+    // Sum payments whose payment dates fall within the currently filtered month/year
     const totalRevenue = visible.reduce((sum, e) => {
+      let depositRevenue = 0;
+      let finalRevenue = 0;
       const total = Number(e.totalAmount || 0);
-      const deposit = e.depositPaid === true ? total * 0.2 : 0;
-      const final = e.finalPaymentPaid === true ? total * 0.8 : 0;
-      return sum + deposit + final;
+
+      if (e.depositPaid === true && e.depositPaidDate) {
+        const d = new Date(e.depositPaidDate);
+        if (!isNaN(d.getTime()) && d.getMonth() === filterMonth && d.getFullYear() === filterYear) {
+          depositRevenue = total * 0.2;
+        }
+      }
+
+      if (e.finalPaymentPaid === true && e.finalPaymentPaidDate) {
+        const d2 = new Date(e.finalPaymentPaidDate);
+        if (!isNaN(d2.getTime()) && d2.getMonth() === filterMonth && d2.getFullYear() === filterYear) {
+          finalRevenue = total * 0.8;
+        }
+      }
+
+      return sum + depositRevenue + finalRevenue;
     }, 0);
+
     return { pending, editing, completed, allTotal, totalRevenue };
-  }, [filteredEvents]);
+  }, [filteredEvents, filterMonth, filterYear]);
 
   const prevMonth = () => setCurrent(c => ({
     ...c,
@@ -468,13 +489,27 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
       const baseId = String(selectedEvent.id || '').split('__')[0] || selectedEvent.id;
       const updates: any = { [field]: value };
 
+      // If marking payments as paid, store the timestamp (ISO)
+      if (field === 'depositPaid' && value === true) {
+        updates.depositPaidDate = new Date().toISOString();
+      }
+      if (field === 'finalPaymentPaid' && value === true) {
+        updates.finalPaymentPaidDate = new Date().toISOString();
+      }
+
       await updateDoc(doc(db, 'contracts', baseId), updates);
 
-      const updatedEvent = { ...selectedEvent, [field]: value };
+      const updatedEvent = {
+        ...selectedEvent,
+        [field]: value,
+        ...(updates.depositPaidDate ? { depositPaidDate: updates.depositPaidDate } : {}),
+        ...(updates.finalPaymentPaidDate ? { finalPaymentPaidDate: updates.finalPaymentPaidDate } : {})
+      } as ContractItem;
+
       setSelectedEvent(updatedEvent);
       setEvents(prev => prev.map(e => {
         const eId = String(e.id || '').split('__')[0];
-        return eId === baseId ? { ...e, [field]: value } : e;
+        return eId === baseId ? { ...e, [field]: value, ...(updates.depositPaidDate ? { depositPaidDate: updates.depositPaidDate } : {}), ...(updates.finalPaymentPaidDate ? { finalPaymentPaidDate: updates.finalPaymentPaidDate } : {}) } : e;
       }));
 
       window.dispatchEvent(new CustomEvent('contractsUpdated'));
