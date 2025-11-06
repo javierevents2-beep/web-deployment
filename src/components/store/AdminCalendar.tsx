@@ -659,7 +659,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
       await load();
       setShowAddEventModal(false);
       setAdding(false);
-      setAddForm({ clientName: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', paymentMethod: 'pix' });
+      setAddForm({ clientName: '', clientEmail: '', phone: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', packageId: '', packageTitle: '', travelFee: '', totalAmount: '', paymentMethod: 'pix' });
       setAppliedCoupons([]);
 
       window.dispatchEvent(new CustomEvent('contractsUpdated'));
@@ -1303,7 +1303,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
             <div className="flex gap-2 mt-3">
               <button onClick={() => setShowCouponModal(true)} className="flex-1 px-4 py-2 bg-amber-600 text-white rounded">Aplicar Cupones ({appliedCoupons.length})</button>
               <button onClick={saveNewEvent} className="flex-1 px-4 py-2 bg-green-600 text-white rounded">Crear Evento</button>
-              <button onClick={() => { setShowAddEventModal(false); setAddForm({ clientName: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', paymentMethod: 'pix' }); setAppliedCoupons([]); }} className={`flex-1 px-4 py-2 border rounded ${darkMode ? 'border-gray-600 text-gray-300' : 'border-gray-300 text-gray-700'}`}>Cancelar</button>
+              <button onClick={() => { setShowAddEventModal(false); setAddForm({ clientName: '', clientEmail: '', phone: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', packageId: '', packageTitle: '', travelFee: '', totalAmount: '', paymentMethod: 'pix' }); setAppliedCoupons([]); }} className={`flex-1 px-4 py-2 border rounded ${darkMode ? 'border-gray-600 text-gray-300' : 'border-gray-300 text-gray-700'}`}>Cancelar</button>
             </div>
           </div>
         </div>
