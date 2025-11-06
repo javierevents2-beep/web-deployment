@@ -1740,15 +1740,25 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
               <div className={`border-t pt-4 transition-colors ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 <div className="text-sm font-medium mb-3">Información de Pago</div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className={`transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Depósito (20%):</span>
-                    <span className={`font-medium transition-colors ${darkMode ? 'text-white' : 'text-black'}`}>R$ {calculateDepositWithDiscount().toFixed(0)}</span>
-                    <span className={`px-2 py-0.5 rounded text-xs ${selectedEvent.depositPaid ? (darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-700') : (darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700')}`}>{selectedEvent.depositPaid ? 'Pagado' : 'No pagado'}</span>
+                  <div className="flex items-center gap-2 flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className={`transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Depósito (20%):</span>
+                      <span className={`font-medium transition-colors ${darkMode ? 'text-white' : 'text-black'}`}>R$ {calculateDepositWithDiscount().toFixed(0)}</span>
+                      <span className={`px-2 py-0.5 rounded text-xs ${selectedEvent.depositPaid ? (darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-700') : (darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700')}`}>{selectedEvent.depositPaid ? 'Pagado' : 'No pagado'}</span>
+                    </div>
+                    {selectedEvent.depositPaidDate && (
+                      <div className={`text-xs mt-1 transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Fecha depósito: {new Date(selectedEvent.depositPaidDate).toLocaleDateString('es-ES')}</div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Restante (80%):</span>
-                    <span className={`font-medium transition-colors ${darkMode ? 'text-white' : 'text-black'}`}>R$ {calculateRemainingWithDiscount().toFixed(0)}</span>
-                    <span className={`px-2 py-0.5 rounded text-xs ${selectedEvent.finalPaymentPaid ? (darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-700') : (darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700')}`}>{selectedEvent.finalPaymentPaid ? 'Pagado' : 'No pagado'}</span>
+                  <div className="flex items-center gap-2 flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className={`transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Restante (80%):</span>
+                      <span className={`font-medium transition-colors ${darkMode ? 'text-white' : 'text-black'}`}>R$ {calculateRemainingWithDiscount().toFixed(0)}</span>
+                      <span className={`px-2 py-0.5 rounded text-xs ${selectedEvent.finalPaymentPaid ? (darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-700') : (darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700')}`}>{selectedEvent.finalPaymentPaid ? 'Pagado' : 'No pagado'}</span>
+                    </div>
+                    {selectedEvent.finalPaymentPaidDate && (
+                      <div className={`text-xs mt-1 transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Fecha pago final: {new Date(selectedEvent.finalPaymentPaidDate).toLocaleDateString('es-ES')}</div>
+                    )}
                   </div>
                   <div><span className={`transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total:</span> <span className={`font-medium transition-colors ${darkMode ? 'text-white' : 'text-black'}`}>R$ {calculateTotalWithDiscount().toFixed(0)}</span></div>
                   <div><span className={`transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Deslocamiento:</span> <span className={`font-medium transition-colors ${darkMode ? 'text-white' : 'text-black'}`}>R$ {(selectedEvent.travelFee ?? 0).toFixed(0)}</span></div>
