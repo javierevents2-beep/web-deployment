@@ -73,6 +73,18 @@ function getEventStatus(c: ContractItem): 'completed' | 'pending' {
   return (status === 'delivered' || status === 'released') ? 'completed' : 'pending';
 }
 
+function isContactEvent(ev: any) {
+  if (!ev) return false;
+  const id = String(ev.id || '').toLowerCase();
+  const type = String((ev as any).type || ev.eventType || '').toLowerCase();
+  // calendar-only events created from contacts use id starting with 'cal_' and/or type 'contact'/'contacto'
+  if (id.startsWith('cal_')) return true;
+  if (type === 'contact' || type === 'contacto') return true;
+  // some events may have a contactRef linking them to contacts
+  if ((ev as any).contactRef) return true;
+  return false;
+}
+
 interface AdminCalendarProps {
   darkMode?: boolean;
 }
