@@ -498,7 +498,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
 
     // Update viewing state if currently viewing this contract
     if (viewing && viewing.id === id) {
-      setViewing(v => v ? { ...v, ...updates } : v);
+      setViewing(v => v ? { ...v, ...updates, ...(updates.depositPaidDate ? { showPendingDeposit: false } : {}) } : v);
     }
 
     try { window.dispatchEvent(new CustomEvent('contractsUpdated')); } catch {}
@@ -646,7 +646,30 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
 
   const openView = async (c: ContractItem) => {
     setWfEditMode(false);
-    setViewing(c);
+
+    // If contract is new, mark it as not new and, if deposit not paid, set a transient pending flag
+    try {
+      if (c.isNew) {
+        const updates: any = { isNew: false };
+        if (!c.depositPaid) {
+          // keep transient flag in UI
+          setViewing({ ...c, isNew: false, showPendingDeposit: true } as any);
+          updates.updatedAt = new Date().toISOString();
+          await updateDoc(doc(db, 'contracts', c.id), updates as any);
+          await fetchContracts();
+        } else {
+          await updateDoc(doc(db, 'contracts', c.id), updates as any);
+          await fetchContracts();
+          setViewing({ ...c, isNew: false } as any);
+        }
+      } else {
+        setViewing(c as any);
+      }
+    } catch (err) {
+      console.error('Error opening view and updating isNew:', err);
+      setViewing(c as any);
+    }
+
     const base = (c.workflow && c.workflow.length) ? c.workflow : [];
 
     const normalize = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
