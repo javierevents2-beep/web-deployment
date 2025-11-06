@@ -984,7 +984,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
               <div className="text-lg font-medium">
                 {viewing.clientName} — {viewing.eventType || 'Trabajo'}
                 {((viewing as any).pendingDeposit || (viewing as any).showPendingDeposit) ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-semibold ml-3">Pendiente depósito</span>
+                  <span className="inline-flex items-center gap-1 pt-[2px] pr-0 pb-[2px] pl-[2px] rounded bg-yellow-500 text-white text-[11px] font-medium ml-3">Pendiente depósito</span>
                 ) : ((viewing as any).isNew ? (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold ml-3">Nuevo</span>
                 ) : null)}
