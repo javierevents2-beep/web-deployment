@@ -873,7 +873,8 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
           <div className="col-span-2">Tel��fono</div>
           <div className="col-span-1">Tipo</div>
           <div className="col-span-1">Total</div>
-          <div className="col-span-2">Progreso del flujo</div>
+          <div className="col-span-1">Progreso del flujo</div>
+          <div className="col-span-1">Estado</div>
           <div className="col-span-1 text-right">Acciones</div>
         </div>
         {loading && <div className="p-3 md:p-4 text-sm text-gray-500">Cargando...</div>}
@@ -884,14 +885,11 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
             return (
               <div key={c.id} className="hidden md:grid grid-cols-12 p-1.5 items-center hover:bg-gray-50 hover:text-black cursor-pointer border-b text-xs md:text-sm transition-colors admin-contract-row" onClick={() => openView(c)}>
                 <div className="col-span-2 text-sm">{c.eventDate || '-'}</div>
-                <div className="col-span-3 lowercase first-letter:uppercase flex items-center gap-2">{c.clientName || 'Trabajo'}{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
-                    <span className="inline-flex items-center gap-1 pt-[2px] pr-0 pb-[2px] pl-[2px] rounded bg-yellow-500 text-white text-[11px] font-medium">Pendiente depósito</span>
-                  ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>)}
-                  </div>
+                <div className="col-span-3 lowercase first-letter:uppercase">{c.clientName || 'Trabajo'}</div>
                 <div className="col-span-2 text-sm">{((c as any).clientPhone || (c as any).phone || (c as any).client_phone || (c as any).formSnapshot?.phone || '') || '-'}</div>
                 <div className="col-span-1 text-sm">{c.eventType || '-'}</div>
                 <div className="col-span-1 font-semibold">R$ {Number(c.totalAmount || 0).toFixed(0)}</div>
-                <div className="col-span-2" onClick={(e) => e.stopPropagation()}>
+                <div className="col-span-1" onClick={(e) => e.stopPropagation()}>
                   <WorkflowStatusButtons
                     depositPaid={c.depositPaid}
                     finalPaymentPaid={c.finalPaymentPaid}
@@ -910,6 +908,10 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                       }
                     }}
                   />
+                </div>
+                <div className="col-span-1 text-right">{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium whitespace-nowrap">Pendiente depósito</span>
+                ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold whitespace-nowrap">Nuevo</span>)}
                 </div>
                 <div className="col-span-1 text-right">
                   {String((c as any).status || '') === 'pending_approval' ? (
@@ -932,13 +934,12 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
             <div key={c.id} className="p-1.5 border-b hover:bg-gray-50 hover:text-black cursor-pointer space-y-2 transition-colors admin-contract-row" onClick={() => openView(c)}>
               <div className="flex justify-between items-start gap-2">
                 <div className="flex-1">
-                  <div className="font-semibold text-sm flex items-center gap-2">{c.clientName || 'Trabajo'}{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
-                    <span className="inline-flex items-center gap-1 pt-[2px] pr-0 pb-[2px] pl-[2px] rounded bg-yellow-500 text-white text-[11px] font-medium">Pendiente depósito</span>
-                  ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>)}
-                  </div>
+                  <div className="font-semibold text-sm">{c.clientName || 'Trabajo'}</div>
                   <div className="text-xs text-gray-600">{c.eventDate || '-'}</div>
                 </div>
-                <div className="text-right">
+                <div className="text-right">{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
+                    <div className="mb-1"><span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium whitespace-nowrap">Pendiente depósito</span></div>
+                  ) : (c.isNew && <div className="mb-1"><span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold whitespace-nowrap">Nuevo</span></div>)}
                   <div className="text-xs font-medium text-gray-600">Total</div>
                   <div className="font-bold">R$ {Number(c.totalAmount || 0).toFixed(0)}</div>
                 </div>
@@ -985,9 +986,9 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
               <div className="text-lg font-medium">
                 {viewing.clientName} — {viewing.eventType || 'Trabajo'}
                 {(((viewing as any).pendingDeposit || (viewing as any).showPendingDeposit) || ( !(viewing as any).isNew && !(viewing as any).depositPaid )) ? (
-                  <span className="inline-flex items-center gap-1 pt-[2px] pr-0 pb-[2px] pl-[2px] rounded bg-yellow-500 text-white text-[11px] font-medium ml-3">Pendiente depósito</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium ml-3 whitespace-nowrap">Pendiente depósito</span>
                 ) : ((viewing as any).isNew ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold ml-3">Nuevo</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold ml-3 whitespace-nowrap">Nuevo</span>
                 ) : null)}
               </div>
               <div className="text-xs text-gray-500">Fecha principal: {viewing.eventDate || '-' } Hora: {viewing.eventTime || (viewing as any).eventTime || '-'}</div>
