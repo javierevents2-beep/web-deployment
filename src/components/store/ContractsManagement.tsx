@@ -43,6 +43,7 @@ interface ContractItem {
   packageTitle?: string;
   packageDuration?: string;
   eventLocation?: string;
+  pendingDeposit?: boolean;
 }
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -488,6 +489,8 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
     // If marking payments as paid, persist timestamp
     if (field === 'depositPaid' && next === true) {
       updates.depositPaidDate = new Date().toISOString();
+      // clear pendingDeposit flag when deposit is paid
+      updates.pendingDeposit = false;
     }
     if (field === 'finalPaymentPaid' && next === true) {
       updates.finalPaymentPaidDate = new Date().toISOString();
@@ -652,11 +655,12 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
       if (c.isNew) {
         const updates: any = { isNew: false };
         if (!c.depositPaid) {
-          // keep transient flag in UI
-          setViewing({ ...c, isNew: false, showPendingDeposit: true } as any);
+          // persist pendingDeposit so it shows in the table as well
+          updates.pendingDeposit = true;
           updates.updatedAt = new Date().toISOString();
           await updateDoc(doc(db, 'contracts', c.id), updates as any);
           await fetchContracts();
+          setViewing({ ...c, isNew: false, pendingDeposit: true } as any);
         } else {
           await updateDoc(doc(db, 'contracts', c.id), updates as any);
           await fetchContracts();
@@ -879,7 +883,10 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
             return (
               <div key={c.id} className="hidden md:grid grid-cols-12 p-1.5 items-center hover:bg-gray-50 hover:text-black cursor-pointer border-b text-xs md:text-sm transition-colors admin-contract-row" onClick={() => openView(c)}>
                 <div className="col-span-2 text-sm">{c.eventDate || '-'}</div>
-                <div className="col-span-3 lowercase first-letter:uppercase flex items-center gap-2">{c.clientName || 'Trabajo'}{c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>}</div>
+                <div className="col-span-3 lowercase first-letter:uppercase flex items-center gap-2">{c.clientName || 'Trabajo'}{(c.pendingDeposit) ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-semibold">Pendiente depósito</span>
+                  ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>)}
+                  </div>
                 <div className="col-span-2 text-sm">{((c as any).clientPhone || (c as any).phone || (c as any).client_phone || (c as any).formSnapshot?.phone || '') || '-'}</div>
                 <div className="col-span-1 text-sm">{c.eventType || '-'}</div>
                 <div className="col-span-1 font-semibold">R$ {Number(c.totalAmount || 0).toFixed(0)}</div>
@@ -924,7 +931,10 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
             <div key={c.id} className="p-1.5 border-b hover:bg-gray-50 hover:text-black cursor-pointer space-y-2 transition-colors admin-contract-row" onClick={() => openView(c)}>
               <div className="flex justify-between items-start gap-2">
                 <div className="flex-1">
-                  <div className="font-semibold text-sm flex items-center gap-2">{c.clientName || 'Trabajo'}{c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>}</div>
+                  <div className="font-semibold text-sm flex items-center gap-2">{c.clientName || 'Trabajo'}{(c.pendingDeposit) ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-semibold">Pendiente depósito</span>
+                  ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>)}
+                  </div>
                   <div className="text-xs text-gray-600">{c.eventDate || '-'}</div>
                 </div>
                 <div className="text-right">
@@ -973,7 +983,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
             <div>
               <div className="text-lg font-medium">
                 {viewing.clientName} — {viewing.eventType || 'Trabajo'}
-                {((viewing as any).showPendingDeposit) ? (
+                {((viewing as any).pendingDeposit || (viewing as any).showPendingDeposit) ? (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-semibold ml-3">Pendiente depósito</span>
                 ) : ((viewing as any).isNew ? (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold ml-3">Nuevo</span>
