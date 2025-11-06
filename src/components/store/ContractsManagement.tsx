@@ -1220,16 +1220,16 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
             </div>
             <div className="md:col-span-2 p-4 max-h-[70vh] overflow-auto space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><span className="text-gray-600">Nombre:</span> <span className="font-medium">{viewing.clientName}</span></div>
-                <div><span className="text-gray-600">Email:</span> <span className="font-medium">{viewing.clientEmail}</span></div>
-                <div><span className="text-gray-600">Teléfono:</span> <span className="font-medium">{(viewing as any).clientPhone || (viewing as any).formSnapshot?.phone || '-'}</span></div>
-                <div><span className="text-gray-600">CPF:</span> <span className="font-medium">{(viewing as any).clientCPF || '-'}</span></div>
-                <div><span className="text-gray-600">RG:</span> <span className="font-medium">{(viewing as any).clientRG || '-'}</span></div>
-                <div className="col-span-2"><span className="text-gray-600">Endereço:</span> <span className="font-medium">{(viewing as any).clientAddress || '-'}</span></div>
-                <div><span className="text-gray-600">Tipo de evento:</span> <span className="font-medium">{viewing.eventType || '-'}</span></div>
-                <div><span className="text-gray-600">Fecha contrato:</span> <span className="font-medium">{viewing.contractDate || '-'}</span></div>
-                <div><span className="text-gray-600">Hora firma:</span> <span className="font-medium">{(viewing as any).signatureTime || '-'}</span></div>
-                <div><span className="text-gray-600">Método de pago:</span> <span className="font-medium">{viewing.paymentMethod || '-'}</span></div>
+                <div><span className="text-gray-600">Nombre:</span> <span className="font-medium">{getViewing(['clientName','name'])}</span></div>
+                <div><span className="text-gray-600">Email:</span> <span className="font-medium">{getViewing(['clientEmail','email'])}</span></div>
+                <div><span className="text-gray-600">Teléfono:</span> <span className="font-medium">{getViewing(['clientPhone','phone','telefone'])}</span></div>
+                <div><span className="text-gray-600">CPF:</span> <span className="font-medium">{getViewing(['clientCPF','cpf'])}</span></div>
+                <div><span className="text-gray-600">RG:</span> <span className="font-medium">{getViewing(['clientRG','rg'])}</span></div>
+                <div className="col-span-2"><span className="text-gray-600">Endereço:</span> <span className="font-medium">{getViewing(['clientAddress','address','endereco','endereço'])}</span></div>
+                <div><span className="text-gray-600">Tipo de evento:</span> <span className="font-medium">{getViewing(['eventType'])}</span></div>
+                <div><span className="text-gray-600">Fecha contrato:</span> <span className="font-medium">{getViewing(['contractDate'])}</span></div>
+                <div><span className="text-gray-600">Hora firma:</span> <span className="font-medium">{getViewing(['signatureTime','signature_time'])}</span></div>
+                <div><span className="text-gray-600">Método de pago:</span> <span className="font-medium">{getViewing(['paymentMethod'])}</span></div>
               </div>
 
               {/* Display each service/package individually */}
@@ -1683,7 +1683,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
               <select value={editForm.couponCode || ''} onChange={e => setEditForm((f: any) => ({ ...f, couponCode: e.target.value }))} className="w-full px-3 py-2 border rounded-none">
                 <option value="">— Sin cupón —</option>
                 {coupons.map(c => (
-                  <option key={c.id} value={c.code}>{c.code} �� {c.description || ''}</option>
+                  <option key={c.id} value={c.code}>{c.code} — {c.description || ''}</option>
                 ))}
               </select>
             </div>
