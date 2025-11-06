@@ -346,6 +346,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
 
   const filteredEvents = useMemo(() => {
     return events.filter(ev => {
+      if (isContactEvent(ev)) return false;
       const d = toLocalDate(ev.eventDate);
       if (!d) return false;
       const monthMatch = d.getMonth() === filterMonth;
