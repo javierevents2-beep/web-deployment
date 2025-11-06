@@ -433,9 +433,12 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
     const editing = visible.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted !== true).length;
     const completed = visible.filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true).length;
     const allTotal = visible.length;
-    const totalRevenue = visible
-      .filter(e => e.depositPaid === true && e.finalPaymentPaid === true && e.eventCompleted === true)
-      .reduce((sum, e) => sum + (Number(e.totalAmount || 0)), 0);
+    const totalRevenue = visible.reduce((sum, e) => {
+      const total = Number(e.totalAmount || 0);
+      const deposit = e.depositPaid === true ? total * 0.2 : 0;
+      const final = e.finalPaymentPaid === true ? total * 0.8 : 0;
+      return sum + deposit + final;
+    }, 0);
     return { pending, editing, completed, allTotal, totalRevenue };
   }, [filteredEvents]);
 
