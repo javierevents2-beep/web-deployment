@@ -1303,8 +1303,11 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                   eventCompleted={viewing.eventCompleted}
                   onUpdate={async (updates) => {
                     try {
-                      await updateDoc(doc(db, 'contracts', viewing.id), updates as any);
-                      setViewing(v => v ? { ...v, ...updates } : v);
+                      const payload: any = { ...updates };
+                      if (updates.depositPaid === true) payload.depositPaidDate = new Date().toISOString();
+                      if (updates.finalPaymentPaid === true) payload.finalPaymentPaidDate = new Date().toISOString();
+                      await updateDoc(doc(db, 'contracts', viewing.id), payload as any);
+                      setViewing(v => v ? { ...v, ...payload } : v);
                       window.dispatchEvent(new CustomEvent('contractsUpdated'));
                       window.dispatchEvent(new CustomEvent('adminToast', { detail: { message: 'Estado actualizado', type: 'success' } }));
                     } catch (e) {
