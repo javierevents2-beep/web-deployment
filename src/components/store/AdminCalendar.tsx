@@ -1224,6 +1224,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
 
             {(() => {
               const filtered = filteredEvents.filter(ev => {
+                if (isContactEvent(ev)) return false;
                 if (statusFilter === 'deposit_pending') {
                   return ev.depositPaid !== true;
                 } else if (statusFilter === 'editing') {
