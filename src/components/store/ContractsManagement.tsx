@@ -878,7 +878,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
         </div>
         {loading && <div className="p-3 md:p-4 text-sm text-gray-500">Cargando...</div>}
         {!loading && filtered.length === 0 && <div className="p-3 md:p-4 text-sm text-gray-500">Sin resultados</div>}
-        <style>{`.contracts-list-container{height: calc(100vh - 16px); margin: 0 0 16px 0; padding: 0; overflow-x: auto; overflow-y: auto;} @media (max-width: 640px){ .contracts-list-container{height: 307px !important; margin: 0; padding: 0; } .contracts-list-container > div:first-child { margin-top: 0; padding-top: 0; } }`}</style>
+        <style>{`.contracts-list-container{height: calc(100vh - 16px); margin: 0 0 16px 0; padding: 0; overflow-x: auto; overflow-y: auto;} @media (max-width: 640px){ .contracts-list-container{height: 307px !important; margin: 0; padding: 0; } .contracts-list-container > div:first-child { margin-top: 0; padding-top: 0; } .contracts-list-container .md\\:hidden { margin-top: 0 !important; padding-top: 0 !important; } .contracts-list-container .admin-contract-row:first-child { margin-top: 0 !important; padding-top: 0 !important; } }`}</style>
         <div className="divide-y overflow-y-auto contracts-list-container">
           {filtered.map((c: ContractItem) => {
             return (
