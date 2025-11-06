@@ -885,7 +885,10 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
             return (
               <div key={c.id} className="hidden md:grid grid-cols-12 p-1.5 items-center hover:bg-gray-50 hover:text-black cursor-pointer border-b text-xs md:text-sm transition-colors admin-contract-row" onClick={() => openView(c)}>
                 <div className="col-span-2 text-sm">{c.eventDate || '-'}</div>
-                <div className="col-span-3 lowercase first-letter:uppercase">{c.clientName || 'Trabajo'}</div>
+                <div className="col-span-3 lowercase first-letter:uppercase flex items-center gap-2">{c.clientName || 'Trabajo'}{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium">Pendiente depósito</span>
+                  ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>)}
+                  </div>
                 <div className="col-span-2 text-sm">{((c as any).clientPhone || (c as any).phone || (c as any).client_phone || (c as any).formSnapshot?.phone || '') || '-'}</div>
                 <div className="col-span-1 text-sm">{c.eventType || '-'}</div>
                 <div className="col-span-1 font-semibold">R$ {Number(c.totalAmount || 0).toFixed(0)}</div>
@@ -1071,7 +1074,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
 
                   <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                     <div className="bg-primary text-white px-6 py-3 border-b">
-                      <h2 className="text-lg font-medium">Cláusulas Contratuais</h2>
+                      <h2 className="text-lg font-medium">Cl��usulas Contratuais</h2>
                     </div>
                     <div className="p-6 space-y-6 text-sm text-gray-700">
                       <section>
