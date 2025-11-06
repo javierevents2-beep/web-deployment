@@ -885,7 +885,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
               <div key={c.id} className="hidden md:grid grid-cols-12 p-1.5 items-center hover:bg-gray-50 hover:text-black cursor-pointer border-b text-xs md:text-sm transition-colors admin-contract-row" onClick={() => openView(c)}>
                 <div className="col-span-2 text-sm">{c.eventDate || '-'}</div>
                 <div className="col-span-3 lowercase first-letter:uppercase flex items-center gap-2">{c.clientName || 'Trabajo'}{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium">Pendiente depósito</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium whitespace-nowrap">Pendiente depósito</span>
                   ) : (c.isNew && <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Nuevo</span>)}
                   </div>
                 <div className="col-span-2 text-sm">{((c as any).clientPhone || (c as any).phone || (c as any).client_phone || (c as any).formSnapshot?.phone || '') || '-'}</div>
@@ -1836,7 +1836,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
                 }
               }} className="w-full px-3 py-2 border rounded-none">
                 <option value="">— Selecciona paquete —</option>
-                {packagesList.map(p=> (<option key={p.id} value={p.title}>{p.title} ��� R$ {Number(p.price||0).toFixed(0)}</option>))}
+                {packagesList.map(p=> (<option key={p.id} value={p.title}>{p.title} — R$ {Number(p.price||0).toFixed(0)}</option>))}
                 <option value="__custom__">Paquete Personalizado</option>
               </select>
             </div>
