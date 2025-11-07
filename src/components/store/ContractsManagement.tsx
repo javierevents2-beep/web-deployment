@@ -1016,7 +1016,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
               <div className="flex justify-between items-start gap-2">
                 <div className="flex-1">
                   <div className="font-semibold text-sm">{c.clientName || 'Trabajo'}</div>
-                  <div className="text-xs text-gray-600">{c.eventDate || '-'}</div>
+                  <div className="text-xs text-gray-600">{getEventDate(c) || '-'}</div>
                 </div>
                 <div className="text-right">{((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
                     <div className="mb-1"><span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500 text-white text-xs font-medium whitespace-nowrap">Pendiente depósito</span></div>
