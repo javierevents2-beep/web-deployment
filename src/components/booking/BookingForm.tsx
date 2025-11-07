@@ -572,7 +572,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ initialData, packages, onSubm
                       </div>
 
                       {/* Dress selection just below time selection */}
-                      {item.type === 'maternity' && (
+                      {getMaxLooks(item) > 0 && (
                         <div className="md:col-span-2">
                           <DressSelector
                             dresses={dresses}
