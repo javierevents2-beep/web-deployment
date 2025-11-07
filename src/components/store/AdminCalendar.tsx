@@ -524,9 +524,11 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
       const baseId = String(selectedEvent.id || '').split('__')[0] || selectedEvent.id;
       const updates: any = { [field]: value };
 
-      // If marking payments as paid, store the timestamp (ISO)
+      // If marking payments as paid, store the timestamp (ISO) and clear pending flags
       if (field === 'depositPaid' && value === true) {
         updates.depositPaidDate = new Date().toISOString();
+        updates.pendingDeposit = false;
+        updates.showPendingDeposit = false;
       }
       if (field === 'finalPaymentPaid' && value === true) {
         updates.finalPaymentPaidDate = new Date().toISOString();
