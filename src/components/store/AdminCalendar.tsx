@@ -203,11 +203,13 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
             const evLoc = String(fs[`eventLocation_${index}`] || c.eventLocation || '');
             const duration = String(it?.duration || c.packageDuration || '');
             const evType = String(it?.type || c.eventType || '');
+            const nd = normalizeDateTime(evDate);
+            const nt = normalizeDateTime(evTime);
             return {
               ...c,
               id: `${c.id}__${index}`,
-              eventDate: evDate,
-              eventTime: evTime,
+              eventDate: nd.date || evDate,
+              eventTime: nt.time || nd.time || evTime,
               eventLocation: evLoc,
               packageDuration: duration,
               eventType: evType,
@@ -1328,7 +1330,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                             {idx + 1}. {ev.clientName || 'Evento sin nombre'}
                           </div>
                           <div className={`text-sm mt-1 transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            {ev.eventDate} {ev.eventTime ? `· ${ev.eventTime}` : ''} {ev.eventType ? `· ${ev.eventType}` : ''}
+                            {ev.eventDate} {ev.eventTime ? `· ${ev.eventTime}` : ''} {ev.eventType ? `�� ${ev.eventType}` : ''}
                           </div>
                         </button>
                         <div className={`text-xs px-2 py-1 rounded whitespace-nowrap ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>
