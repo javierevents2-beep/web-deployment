@@ -874,14 +874,15 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
               return contractData?.eventId === event.id || contractData?.originalEventId === event.id || contractData?.bookingId === event.id;
             });
 
-            if (!contractExists && event.clientName && event.eventDate) {
+            if (!contractExists && event.clientName && (event.eventDate || event.date || event.start)) {
+              const norm = normalizeDateTime(event.eventDate || event.date || event.start || '');
               const payload: any = {
                 clientName: event.clientName,
                 clientEmail: event.clientEmail || '',
                 eventType: event.eventType || 'Evento',
-                eventDate: event.eventDate,
-                eventTime: event.eventTime || '00:00',
-                eventLocation: event.eventLocation || '',
+                eventDate: norm.date || '',
+                eventTime: norm.time || (event.eventTime || '00:00'),
+                eventLocation: event.eventLocation || event.location || '',
                 phone: event.phone || '',
                 paymentMethod: event.paymentMethod || 'pix',
                 depositPaid: false,
