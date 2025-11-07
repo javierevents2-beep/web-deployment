@@ -210,6 +210,21 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
         }
       }
       setContracts(items);
+      try {
+        const csnap = await getDocs(collection(db, 'calendar_events'));
+        const cmap: Record<string, any> = {};
+        csnap.docs.forEach(d => {
+          const data: any = d.data();
+          cmap[d.id] = {
+            eventDate: normalizeDateOnly(data.eventDate || data.date || data.start || ''),
+            eventTime: normalizeTimeOnly(data.eventTime || data.time || data.start || ''),
+            ...data
+          };
+        });
+        setCalendarEventsMap(cmap);
+      } catch (e) {
+        setCalendarEventsMap({});
+      }
     } finally {
       setLoading(false);
     }
