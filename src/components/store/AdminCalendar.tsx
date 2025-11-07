@@ -225,14 +225,18 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
         const csnap = await getDocs(calendarEventsCol);
         calendarList = csnap.docs.map(d => {
           const data: any = d.data();
+          const dt = normalizeDateTime(data.eventDate || data.date || data.start || '');
+          const tt = normalizeDateTime(data.eventTime || data.time || data.start || '');
+          // if eventTime wasn't directly available, try extracting from start datetime
+          const time = dt.time || (tt.time || '');
           return {
             id: `cal_${d.id}`,
             clientName: data.name || data.title || 'Contacto',
             clientEmail: data.email || '',
             phone: data.phone || '',
-            eventDate: data.eventDate || '',
-            eventTime: data.eventTime || '',
-            eventLocation: data.eventLocation || '',
+            eventDate: dt.date || '',
+            eventTime: time || '',
+            eventLocation: data.eventLocation || data.location || '',
             eventType: data.type || 'Contacto',
             packageTitle: data.packageTitle || '',
             notes: data.notes || '',
