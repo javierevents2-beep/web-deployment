@@ -1763,6 +1763,29 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                   <input type="text" placeholder="Nombre" value={(editForm.clientName ?? editingEvent.clientName ?? '') as any} onChange={(e) => setEditForm({...editForm, clientName: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
                   <input type="email" placeholder="Email" value={(editForm.clientEmail ?? editingEvent.clientEmail ?? '') as any} onChange={(e) => setEditForm({...editForm, clientEmail: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
                   <input type="tel" placeholder="Teléfono" value={(editForm.phone ?? editingEvent.phone ?? '') as any} onChange={(e) => setEditForm({...editForm, phone: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
+
+                  <input
+                    type="text"
+                    placeholder="CPF"
+                    value={(editForm.clientCPF ?? editingEvent.clientCPF ?? '') as any}
+                    onChange={(e) => setEditForm({...editForm, clientCPF: e.target.value})}
+                    className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  />
+                  <input
+                    type="text"
+                    placeholder="RG"
+                    value={(editForm.clientRG ?? editingEvent.clientRG ?? '') as any}
+                    onChange={(e) => setEditForm({...editForm, clientRG: e.target.value})}
+                    className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Dirección"
+                    value={(editForm.clientAddress ?? editingEvent.clientAddress ?? '') as any}
+                    onChange={(e) => setEditForm({...editForm, clientAddress: e.target.value})}
+                    className={`px-3 py-2 border rounded text-sm md:col-span-2 ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  />
+
                   <input type="text" placeholder="Tipo de evento" value={(editForm.eventType ?? editingEvent.eventType ?? '') as any} onChange={(e) => setEditForm({...editForm, eventType: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
                   <input type="date" placeholder="Fecha evento" value={(editForm.eventDate ?? editingEvent.eventDate ?? '') as any} onChange={(e) => setEditForm({...editForm, eventDate: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
                   <input type="time" placeholder="Hora" value={(editForm.eventTime ?? editingEvent.eventTime ?? '') as any} onChange={(e) => setEditForm({...editForm, eventTime: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
