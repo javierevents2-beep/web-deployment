@@ -134,7 +134,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
   const [filterPhone, setFilterPhone] = useState<string>('');
   const [selected, setSelected] = useState<ContractItem | null>(null);
   const [adding, setAdding] = useState(false);
-  const [addForm, setAddForm] = useState<any>({ clientName: '', clientEmail: '', phone: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', packageId: '', packageTitle: '', travelFee: '', totalAmount: '', paymentMethod: 'pix' });
+  const [addForm, setAddForm] = useState<any>({ clientName: '', clientEmail: '', phone: '', clientPhone: '', clientCPF: '', clientRG: '', clientAddress: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', packageId: '', packageTitle: '', travelFee: '', totalAmount: '', paymentMethod: 'pix' });
   const [dressOptions, setDressOptions] = useState<{ id: string; name: string; image: string; color?: string }[]>([]);
   const [imageModal, setImageModal] = useState<{ open: boolean; src?: string; alt?: string }>({ open: false });
 
@@ -679,7 +679,11 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
       const updates = {
         clientName: editForm.clientName || editingEvent.clientName,
         clientEmail: editForm.clientEmail || editingEvent.clientEmail,
-        phone: editForm.phone || editingEvent.phone,
+        clientPhone: editForm.phone || editForm.clientPhone || editingEvent.clientPhone || editingEvent.phone,
+        phone: editForm.phone || editForm.clientPhone || editingEvent.phone,
+        clientCPF: editForm.clientCPF || editingEvent.clientCPF,
+        clientRG: editForm.clientRG || editingEvent.clientRG,
+        clientAddress: editForm.clientAddress || editingEvent.clientAddress,
         eventType: editForm.eventType || editingEvent.eventType,
         eventDate: editForm.eventDate || editingEvent.eventDate,
         eventTime: editForm.eventTime || editingEvent.eventTime,
@@ -688,6 +692,14 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
         travelFee: editForm.travelFee ? Number(editForm.travelFee) : editingEvent.travelFee,
         paymentMethod: editForm.paymentMethod || editingEvent.paymentMethod,
         packageTitle: editForm.packageTitle || editingEvent.packageTitle,
+        formSnapshot: {
+          ...(editingEvent.formSnapshot || {}),
+          phone: editForm.phone || editForm.clientPhone || editingEvent.phone || (editingEvent.formSnapshot?.phone || ''),
+          clientPhone: editForm.phone || editForm.clientPhone || editingEvent.clientPhone || (editingEvent.formSnapshot?.clientPhone || ''),
+          clientCPF: editForm.clientCPF || editingEvent.clientCPF || (editingEvent.formSnapshot?.clientCPF || ''),
+          clientRG: editForm.clientRG || editingEvent.clientRG || (editingEvent.formSnapshot?.clientRG || ''),
+          clientAddress: editForm.clientAddress || editingEvent.clientAddress || (editingEvent.formSnapshot?.clientAddress || ''),
+        }
       };
 
       await updateDoc(doc(db, 'contracts', baseId), updates);
@@ -727,11 +739,15 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
       const payload: any = {
         clientName: addForm.clientName || 'Sin nombre',
         clientEmail: addForm.clientEmail || '',
+        clientPhone: addForm.phone || addForm.clientPhone || '',
+        phone: addForm.phone || addForm.clientPhone || '',
+        clientCPF: addForm.clientCPF || '',
+        clientRG: addForm.clientRG || '',
+        clientAddress: addForm.clientAddress || '',
         eventType: addForm.eventType || 'Evento',
         eventDate: norm.date || (addForm.eventDate || ''),
         eventTime: norm.time || (addForm.eventTime || '00:00'),
         eventLocation: addForm.eventLocation || '',
-        phone: addForm.phone || '',
         paymentMethod: addForm.paymentMethod || 'pix',
         depositPaid: false,
         finalPaymentPaid: false,
@@ -744,6 +760,13 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
         packageId: addForm.packageId || null,
         packageTitle: addForm.packageTitle || '',
         appliedCoupons: appliedCoupons.slice(),
+        formSnapshot: {
+          phone: addForm.phone || addForm.clientPhone || '',
+          clientPhone: addForm.phone || addForm.clientPhone || '',
+          clientCPF: addForm.clientCPF || '',
+          clientRG: addForm.clientRG || '',
+          clientAddress: addForm.clientAddress || '',
+        }
       };
 
       const ref = await addDoc(collection(db, 'contracts'), payload);
@@ -752,7 +775,7 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
       await load();
       setShowAddEventModal(false);
       setAdding(false);
-      setAddForm({ clientName: '', clientEmail: '', phone: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', packageId: '', packageTitle: '', travelFee: '', totalAmount: '', paymentMethod: 'pix' });
+      setAddForm({ clientName: '', clientEmail: '', phone: '', clientPhone: '', clientCPF: '', clientRG: '', clientAddress: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', packageId: '', packageTitle: '', travelFee: '', totalAmount: '', paymentMethod: 'pix' });
       setAppliedCoupons([]);
 
       window.dispatchEvent(new CustomEvent('contractsUpdated'));
@@ -889,6 +912,10 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                 eventTime: norm.time || (event.eventTime || '00:00'),
                 eventLocation: event.eventLocation || event.location || '',
                 phone: event.phone || '',
+                clientPhone: event.phone || '',
+                clientCPF: event.clientCPF || '',
+                clientRG: event.clientRG || '',
+                clientAddress: event.clientAddress || '',
                 paymentMethod: event.paymentMethod || 'pix',
                 depositPaid: false,
                 finalPaymentPaid: false,
@@ -900,6 +927,13 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
                 status: 'booked' as const,
                 bookingId: event.id,
                 originalEventId: event.id,
+                formSnapshot: {
+                  phone: event.phone || '',
+                  clientPhone: event.phone || '',
+                  clientCPF: event.clientCPF || '',
+                  clientRG: event.clientRG || '',
+                  clientAddress: event.clientAddress || '',
+                }
               };
 
               await addDoc(collection(db, 'contracts'), payload);
@@ -1384,6 +1418,29 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
               <input type="text" placeholder="Nombre" value={addForm.clientName} onChange={(e) => setAddForm({...addForm, clientName: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
               <input type="email" placeholder="Email" value={addForm.clientEmail} onChange={(e) => setAddForm({...addForm, clientEmail: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
               <input type="tel" placeholder="Teléfono" value={addForm.phone || ''} onChange={(e) => setAddForm({...addForm, phone: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
+
+              <input
+                type="text"
+                placeholder="CPF"
+                value={addForm.clientCPF || ''}
+                onChange={(e) => setAddForm({...addForm, clientCPF: e.target.value})}
+                className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+              />
+              <input
+                type="text"
+                placeholder="RG"
+                value={addForm.clientRG || ''}
+                onChange={(e) => setAddForm({...addForm, clientRG: e.target.value})}
+                className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+              />
+              <input
+                type="text"
+                placeholder="Dirección"
+                value={addForm.clientAddress || ''}
+                onChange={(e) => setAddForm({...addForm, clientAddress: e.target.value})}
+                className={`px-3 py-2 border rounded text-sm md:col-span-2 ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+              />
+
               <input type="text" placeholder="Tipo de evento" value={addForm.eventType} onChange={(e) => setAddForm({...addForm, eventType: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
               <input type="date" value={addForm.eventDate} onChange={(e) => setAddForm({...addForm, eventDate: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
               <input type="time" value={addForm.eventTime} onChange={(e) => setAddForm({...addForm, eventTime: e.target.value})} className={`px-3 py-2 border rounded text-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300'}`} />
