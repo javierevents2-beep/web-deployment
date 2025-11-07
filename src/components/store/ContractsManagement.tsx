@@ -133,6 +133,36 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
     return '-';
   };
 
+  // Helpers to obtain event date/time with fallbacks (formSnapshot, calendar_events)
+  const getEventDate = (c: ContractItem | any) => {
+    if (!c) return '';
+    if (c.eventDate) return String(c.eventDate);
+    const fs = c.formSnapshot || {};
+    // check indexed service dates
+    for (const k of Object.keys(fs)) {
+      if (k.startsWith('date_') && fs[k]) return String(fs[k]);
+    }
+    // try calendar_events by bookingId/originalEventId
+    const refId = c.bookingId || c.originalEventId || c.eventId || c.calendarEventId;
+    if (refId && calendarEventsMap[refId]) return calendarEventsMap[refId].eventDate || '';
+    return '';
+  };
+
+  const getEventTime = (c: ContractItem | any) => {
+    if (!c) return '';
+    if (c.eventTime) return String(c.eventTime);
+    const fs = c.formSnapshot || {};
+    for (const k of Object.keys(fs)) {
+      if (k.startsWith('time_') && fs[k]) return String(fs[k]);
+    }
+    const refId = c.bookingId || c.originalEventId || c.eventId || c.calendarEventId;
+    if (refId && calendarEventsMap[refId]) return calendarEventsMap[refId].eventTime || '';
+    return '';
+  };
+
+  const getCalendarFallbackDate = (c: ContractItem | any) => getEventDate(c);
+  const getCalendarFallbackTime = (c: ContractItem | any) => getEventTime(c);
+
   // Cache contracts whenever they change
   useEffect(() => {
     localStorage.setItem('contracts_management_cache', JSON.stringify(contracts));
