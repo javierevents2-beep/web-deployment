@@ -51,9 +51,40 @@ const startOfMonth = (y: number, m: number) => new Date(y, m, 1);
 const endOfMonth = (y: number, m: number) => new Date(y, m + 1, 0);
 const toLocalDate = (s?: string) => {
   if (!s) return null;
-  const [y, m, d] = s.split('-').map(Number);
+  // Accept ISO datetimes like 2025-11-22T14:30:00 and plain YYYY-MM-DD
+  const datePart = String(s).includes('T') ? String(s).split('T')[0] : String(s).split(' ')[0];
+  const [y, m, d] = datePart.split('-').map(Number);
   if (!y || !m || !d) return null;
   return new Date(y, m - 1, d);
+};
+
+// Normalize incoming event date/time values to YYYY-MM-DD and HH:MM
+const normalizeDateTime = (v: any): { date: string; time: string } => {
+  if (!v) return { date: '', time: '' };
+  if (v instanceof Date) {
+    const date = `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}-${String(v.getDate()).padStart(2,'0')}`;
+    const time = `${String(v.getHours()).padStart(2,'0')}:${String(v.getMinutes()).padStart(2,'0')}`;
+    return { date, time };
+  }
+  const s = String(v);
+  if (s.includes('T')) {
+    const [date, time] = s.split('T');
+    return { date, time: (time || '00:00').slice(0,5) };
+  }
+  if (s.includes(' ')) {
+    const [date, time] = s.split(' ');
+    return { date, time: (time || '00:00').slice(0,5) };
+  }
+  // If only date
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return { date: s, time: '' };
+  // Fallback: try parse
+  const dt = new Date(s);
+  if (!isNaN(dt.getTime())) {
+    const date = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+    const time = `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    return { date, time };
+  }
+  return { date: s, time: '' };
 };
 
 function getEventColor(c: ContractItem): string {
