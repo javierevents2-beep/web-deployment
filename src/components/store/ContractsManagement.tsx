@@ -160,6 +160,33 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
   const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState<any>({ clientName: '', clientEmail: '', clientPhone: '', eventType: '', eventDate: '', eventTime: '', eventLocation: '', packageTitle: '', packageDuration: '', paymentMethod: 'pix', totalAmount: 0, travelFee: 0, message: '' });
   const [dressOptions, setDressOptions] = useState<{ id: string; name: string; image: string; color?: string }[]>([]);
+  const [calendarEventsMap, setCalendarEventsMap] = useState<Record<string, any>>({});
+
+  const normalizeDateOnly = (s?: string) => {
+    if (!s) return '';
+    try {
+      if (typeof s !== 'string') s = String(s);
+      if (s.includes('T')) return s.split('T')[0];
+      if (s.includes(' ')) return s.split(' ')[0];
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    } catch (e) {}
+    return '';
+  };
+
+  const normalizeTimeOnly = (s?: string) => {
+    if (!s) return '';
+    try {
+      if (typeof s !== 'string') s = String(s);
+      if (s.includes('T')) return s.split('T')[1].slice(0,5);
+      if (s.includes(' ')) return s.split(' ')[1]?.slice(0,5) || '';
+      if (/^\d{2}:\d{2}/.test(s)) return s.slice(0,5);
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    } catch (e) {}
+    return '';
+  };
 
   const fetchContracts = async () => {
     setLoading(true);
