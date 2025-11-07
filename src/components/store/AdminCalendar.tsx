@@ -721,12 +721,13 @@ const AdminCalendar: React.FC<AdminCalendarProps> = ({ darkMode = false }) => {
 
       const totalWithDiscount = computeTotalFromBase(baseAmount);
 
+      const norm = normalizeDateTime(addForm.eventDate || '');
       const payload: any = {
         clientName: addForm.clientName || 'Sin nombre',
         clientEmail: addForm.clientEmail || '',
         eventType: addForm.eventType || 'Evento',
-        eventDate: addForm.eventDate || '',
-        eventTime: addForm.eventTime || '00:00',
+        eventDate: norm.date || (addForm.eventDate || ''),
+        eventTime: norm.time || (addForm.eventTime || '00:00'),
         eventLocation: addForm.eventLocation || '',
         phone: addForm.phone || '',
         paymentMethod: addForm.paymentMethod || 'pix',
