@@ -955,7 +955,7 @@ const ContractsManagement: React.FC<{ openContractId?: string | null; onOpened?:
           {filtered.map((c: ContractItem) => {
             return (
               <div key={c.id} className="hidden md:grid grid-cols-12 p-1.5 items-center hover:bg-gray-50 hover:text-black cursor-pointer border-b text-xs md:text-sm transition-colors admin-contract-row" onClick={() => openView(c)}>
-                <div className="col-span-2 text-sm">{c.eventDate || '-'}</div>
+                <div className="col-span-2 text-sm">{getEventDate(c) || '-'}</div>
                 <div className="col-span-3 lowercase first-letter:uppercase flex items-center justify-between gap-2">
                     <div className="truncate">{c.clientName || 'Trabajo'}</div>
                     {((c.pendingDeposit) || (!c.isNew && !c.depositPaid)) ? (
